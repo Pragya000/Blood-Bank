@@ -6,6 +6,8 @@ import cors from "cors";
 import fileUpload from "express-fileupload";
 import connect from "./config/database.js";
 
+import authRoutes from './routes/auth.js'
+
 const app = express();
 
 // Loading environment variables from .env file
@@ -49,6 +51,9 @@ app.use('*', (req, res, next) => {
   //move to next middleware
   next();
 })
+
+// App Routes
+app.use("/api/v1/auth", authRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
