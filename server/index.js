@@ -29,7 +29,7 @@ if(process.env.NODE_ENV) {
 // Middlewares
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: allowedOrigins,
     credentials: true,
   })
 );
