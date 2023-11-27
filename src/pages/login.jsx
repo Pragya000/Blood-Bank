@@ -3,13 +3,21 @@ import useCustomTitle from "../hooks/useCustomTitle";
 import { useState } from "react";
 import Logo from "../assets/logo.png";
 import { Link } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { apiConnector } from "../services/apiConnector";
+import { LOGIN } from "../services/apis";
+import toast from "react-hot-toast";
+import { useUser } from "../store/useUser";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  // const navigate = useNavigate()
 
   useCustomTitle("Blood Connect | Login");
+
+  const { setIsAuth } = useUser();
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -19,13 +27,27 @@ export default function Login() {
     setPassword(e.target.value);
   };
 
+  const mutation = useMutation({
+    mutationFn: (payload) => {
+      return apiConnector("POST", LOGIN, payload);
+    },
+    onSuccess: () => {
+      toast.success("Login successful!");
+      setIsAuth(true);
+      location.replace('/profile')
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || "Something went wrong!");
+    },
+  });
+
   const handleLogin = () => {
     if (!email || !password) {
       setError("Please enter both email and password");
     } else {
       // Perform login logic here
       setError("");
-      // Redirect to dashboard or perform any other action
+      mutation.mutate({ email, password });
     }
   };
 
@@ -56,6 +78,12 @@ export default function Login() {
       >
         Login
       </button>
+      <p className="mt-4">
+        Do not have an account?{" "}
+        <Link to="/signup" className="text-blue-500">
+          Signup
+        </Link>
+      </p>
     </div>
   );
 }

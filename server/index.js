@@ -7,6 +7,8 @@ import fileUpload from "express-fileupload";
 import connect from "./config/database.js";
 
 import authRoutes from './routes/auth.js'
+import userRoutes from './routes/user.js'
+import auth from "./middlewares/auth.js";
 
 const app = express();
 
@@ -27,7 +29,7 @@ const PORT = process.env.PORT || 8000;
 // Middlewares
 app.use(
   cors({
-    origin: '*',
+    origin: 'http://localhost:5173',
     credentials: true,
   })
 );
@@ -54,6 +56,7 @@ app.use('*', (req, res, next) => {
 
 // App Routes
 app.use("/api/v1/auth", authRoutes);
+app.use('/api/v1/user', auth, userRoutes)
 
 // Test Route
 app.get("/", (req, res) => {

@@ -1,9 +1,12 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "../pages/home";
+import PublicRoute from "../components/common/Route/PublicRoute";
+import PrivateRoute from "../components/common/Route/PrivateRoute";
 import Login from "../pages/login";
 import Signup from "../pages/signup";
 import VerifyOtp from "../pages/verifyotp";
 import Error from "../pages/error";
+import Profile from "../pages/profile";
 
 export default function RouterProviderMain() {
   const router = createBrowserRouter([
@@ -13,15 +16,28 @@ export default function RouterProviderMain() {
     },
     {
       path: "/login",
-      element: <Login />,
+      element: <PublicRoute>
+        <Login />
+      </PublicRoute> 
+      ,
     },
     {
       path: "/signup",
-      element: <Signup />,
+      element: <PublicRoute>
+        <Signup />
+      </PublicRoute>,
     },
     {
       path: "/verify-otp",
-      element: <VerifyOtp/>,
+      element: <PublicRoute>
+        <VerifyOtp />
+      </PublicRoute>,
+    },
+    {
+      path: '/profile',
+      element: <PrivateRoute>
+        <Profile />
+      </PrivateRoute>
     },
     {
       path: "*",

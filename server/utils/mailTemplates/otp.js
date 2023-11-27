@@ -4,7 +4,7 @@ export default function otpTemplate(otp, type) {
       type === "signup" ? "OTP for Signup" : "OTP for Reset Password";
     const bodyMessage =
       type === "signup"
-        ? `Thank you for registering with Quizi. To complete your registration, please use the following OTP
+        ? `Thank you for registering with Blood Connect. To complete your registration, please use the following OTP
       (One-Time Password) to verify your account:`
         : "Please use the following OTP (One-Time Password) to reset your password:";
   
@@ -63,7 +63,7 @@ export default function otpTemplate(otp, type) {
       <body>
           <div class="container">
               <a href="http://localhost:5173"><img class="logo"
-                      src="https://res.cloudinary.com/dmavhhdac/image/upload/v1701079210/blood-connect/logo_mcyl3t.png" alt="Quizi Logo"></a>
+                      src="https://res.cloudinary.com/dmavhhdac/image/upload/v1701079210/blood-connect/logo_mcyl3t.png" alt="Blood Connect"></a>
               <div class="message">${message}</div>
               <div class="body">
                   <p>Dear User,</p>

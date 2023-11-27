@@ -1,9 +1,10 @@
-// import * as crypto from "crypto";
-// import jwt from "jsonwebtoken";
-// import User from "../models/User.js";
+/* eslint-disable no-undef */
+import jwt from "jsonwebtoken";
+import User from "../model/User.js";
 import mailSender from "../utils/mailSender.js";
 import otpTemplate from "../utils/mailTemplates/otp.js";
-import { createOtp } from "../utils/otp.js";
+import { createOtp, verifyOtp } from "../utils/otp.js";
+import * as crypto from "crypto";
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -63,3 +64,174 @@ export const sendOtp = async (req, res) => {
         message: "Otp Sent Successfully",
       });
   };
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// @desc   Sign New User Up
+// route   POST /api/user/signup
+// access  Public
+export const signUp = async (req, res) => {
+  console.log("/api/user/signup Body......", req.body);
+  const { email, password, accountType, otp } = req.body;
+
+  const otpToken = req.cookies?.otpToken;
+
+  if (!otpToken) {
+    return res.status(400).json({
+      success: false,
+      message: "OTP Token not found",
+    });
+  }
+
+  if (
+    !accountType.trim() ||
+    !email.trim() ||
+    !password.trim() ||
+    !otp.trim()
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required",
+    });
+  }
+
+  if(accountType !== "User" && accountType !== "Hospital"){
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Account Type",
+    });
+  }
+
+  // Check if user already exists
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json({
+      success: false,
+      message: "User already exists",
+    });
+  }
+
+  // Verify OTP
+  const otpVerificationResult = verifyOtp(otpToken, email, otp, "signup");
+  if (!otpVerificationResult.success) {
+    return res.status(400).json(otpVerificationResult);
+  }
+
+  // hash the password
+  const hashedPassword = crypto
+    .createHmac("sha256", process.env.SECRET)
+    .update(password)
+    .digest("hex");
+
+  // Create new user
+  const newUser = new User({
+    email,
+    accountType,
+    password: hashedPassword,
+    isApproved: false,
+  });
+
+  // Save user to the database
+  try {
+    await newUser.save();
+  } catch (error) {
+    console.log("Error Saving User to Database", error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+
+  // clear otpToken cookie and send response
+  res.clearCookie("otpToken").status(200).json({
+    success: true,
+    message: "User Signed Up Successfully",
+  });
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// @desc   Log User In
+// route   POST /api/user/login
+// access  Public
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email.trim() || !password.trim()) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required",
+    });
+  }
+
+  // Check if user exists
+  const existingUser = await User.findOne({ email });
+  if (!existingUser) {
+    return res.status(400).json({
+      success: false,
+      message: "User does not exist",
+    });
+  }
+
+  // Verify password
+  const hashedPassword = crypto
+    .createHmac("sha256", process.env.SECRET)
+    .update(password)
+    .digest("hex");
+
+  if (hashedPassword !== existingUser.password) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Password",
+    });
+  }
+
+  // Create JWT
+  const token = jwt.sign(
+    {
+      id: existingUser._id,
+      email: existingUser.email,
+      isApproved: existingUser.isApproved,
+      accountType: existingUser.accountType,
+    },
+    process.env.SECRET,
+    {
+      // set expiry to 1 day
+      expiresIn: "1d",
+    }
+  );
+
+  res
+    .cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    })
+    .status(200)
+    .json({
+      success: true,
+      message: "User Logged In Successfully",
+    });
+};
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// @desc   Log User Out
+// route   POST /api/profile/logout
+// access  Private
+export const logout = async (req, res) => {
+  res.clearCookie("token");
+  // clear otpToken cookie if exists
+  res.clearCookie("otpToken");
+  res.status(200).json({
+    success: true,
+    message: "User Logged Out Successfully",
+  });
+};

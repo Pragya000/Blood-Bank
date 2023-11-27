@@ -1,28 +1,46 @@
-import mongoose from 'mongoose';
-import UserDetails from './UserDetails';
-import HospitalDetails from './HospitalDetails';
+import mongoose from "mongoose";
+// import UserDetails from './UserDetails.js';
+// import HospitalDetails from './HospitalDetails.js';
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema(
+  {
     email: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true, // trim whitespace
-        lowercase: true
+      type: String,
+      required: true,
+      unique: true,
+      trim: true, // trim whitespace
+      lowercase: true,
     },
     password: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
-    accountType: ['User', 'Hospital', 'Admin'],
-    accountDetails: {
-        type: mongoose.Schema.Types.ObjectId,
-        refPath: 'accountType'
-    }
-})
+    accountType: {
+      type: String,
+      enum: ["User", "Hospital", "Admin"],
+      required: true,
+    },
+    isApproved: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
+    additionalDetails: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: "detailsModel",
+    },
+  },
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+    timestamps: true,
+  }
+);
 
-// Set up discriminators
-UserSchema.path('accountDetails').discriminator('User', UserDetails);
-UserSchema.path('accountDetails').discriminator('Hospital', HospitalDetails);
+UserSchema.virtual("detailsModel").get(function () {
+  return this.accountType === "User" ? "UserDetails" : "HospitalDetails";
+});
 
-export default mongoose.model('User', UserSchema);
+const User = mongoose.model("User", UserSchema);
+
+export default User;

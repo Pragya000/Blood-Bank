@@ -13,7 +13,7 @@ const mailSender = async (email, title, body) => {
     });
 
     const mailOptions = {
-      from: `"Quizi | Soumya" <${process.env.MAIL_USER}>`, // sender address
+      from: `"Blood Connect | Soumya" <${process.env.MAIL_USER}>`, // sender address
       to: `${email}`, // list of receivers
       subject: `${title}`, // Subject line
       html: `${body}`, // email body

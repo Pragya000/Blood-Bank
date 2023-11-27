@@ -2,13 +2,23 @@ import MyImage from "../components/common/MyImage";
 import useCustomTitle from "../hooks/useCustomTitle";
 import { useState } from "react";
 import Logo from "../assets/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { apiConnector } from "../services/apiConnector";
+import { SEND_OTP } from "../services/apis";
+import toast from "react-hot-toast";
+import { useUser } from "../store/useUser";
 
 export default function Signup() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [accountType, setAccountType] = useState("");
     const [error, setError] = useState("");
+
+    const navigate = useNavigate();
+
+    // access zustand store
+  const { setPayload, setOtpType } = useUser();
 
     useCustomTitle("Blood Connect | Signup");
 
@@ -24,13 +34,44 @@ export default function Signup() {
         setAccountType(e.target.value);
     };
 
+    const mutation = useMutation({
+        mutationFn: (payload) => {
+          return apiConnector("POST", SEND_OTP, payload);
+        },
+        onSuccess: () => {
+          // show success toast
+          toast.success("OTP sent successfully!");
+          // set payload(signup data) in global state
+          setPayload({
+            email,
+            password,
+            accountType: accountType,
+          });
+          // set otp type in global state
+          setOtpType("signup");
+          // clear input fields
+            setEmail("");
+            setPassword("");
+            setAccountType("");
+          // redirect to otp page
+          navigate("/verify-otp");
+        },
+        onError: (error) => {
+          // show error toast
+          toast.error(error?.response?.data?.message || "Something went wrong!");
+        },
+      });
+
     const handleSignup = () => {
         if (!email || !password || !accountType) {
             setError("Please fill in all fields");
         } else {
             // Perform signup logic here
             setError("");
-            // Redirect to dashboard or perform any other action
+            mutation.mutate({
+                email,
+                type: "signup"
+            });
         }
     };
 
@@ -61,8 +102,8 @@ export default function Signup() {
                     type="radio"
                     id="user"
                     name="accountType"
-                    value="user"
-                    checked={accountType === "user"}
+                    value="User"
+                    checked={accountType === "User"}
                     onChange={handleAccountTypeChange}
                     className="mr-2"
                 />
@@ -73,8 +114,8 @@ export default function Signup() {
                     type="radio"
                     id="hospital"
                     name="accountType"
-                    value="hospital"
-                    checked={accountType === "hospital"}
+                    value="Hospital"
+                    checked={accountType === "Hospital"}
                     onChange={handleAccountTypeChange}
                     className="mr-2"
                 />
@@ -87,6 +128,12 @@ export default function Signup() {
             >
                 Signup
             </button>
+            <p className="mt-4">
+                Already have an account?{" "}
+                <Link to="/login" className="text-blue-500">
+                    Login
+                </Link>
+            </p>
         </div>
     );
 }

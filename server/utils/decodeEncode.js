@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import crypto from "crypto";
+import * as crypto from "crypto"
 
 // Encryption key and algorithm
 const encryptionKey = process.env.DECODE_ENCODE_SECRET;
