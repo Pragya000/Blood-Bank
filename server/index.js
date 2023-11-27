@@ -19,12 +19,12 @@ dotenv.config();
 const PORT = process.env.PORT || 8000;
 
 // Setting up allowed origins
-// const allowedOrigins = []
-// if(process.env.NODE_ENV) {
-//   allowedOrigins.push(process.env.CLIENT_URL)
-// } else {
-//   allowedOrigins.push("http://localhost:5173")
-// }
+const allowedOrigins = []
+if(process.env.NODE_ENV) {
+  allowedOrigins.push(process.env.CLIENT_URL)
+} else {
+  allowedOrigins.push("http://localhost:5173")
+}
 
 // Middlewares
 app.use(
