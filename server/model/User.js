@@ -1,9 +1,14 @@
 import mongoose from "mongoose";
-// import UserDetails from './UserDetails.js';
-// import HospitalDetails from './HospitalDetails.js';
 
 const UserSchema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+      trim: true,
+    },
+    profilePic: {
+      type: String,
+    },
     email: {
       type: String,
       required: true,
@@ -20,26 +25,58 @@ const UserSchema = new mongoose.Schema(
       enum: ["User", "Hospital", "Admin"],
       required: true,
     },
-    isApproved: {
-      type: Boolean,
-      default: false,
-      required: true,
+    approvalStatus: {
+      type: String,
+      enum: ["Started", "Pending", "Approved", "Rejected"],
+      default: "Started",
     },
-    additionalDetails: {
-      type: mongoose.Schema.Types.ObjectId,
-      refPath: "detailsModel",
-    },
+    additionalFields: {
+      type: mongoose.Schema.Types.Mixed,
+    }
   },
   {
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
     timestamps: true,
   }
 );
 
-UserSchema.virtual("detailsModel").get(function () {
-  return this.accountType === "User" ? "UserDetails" : "HospitalDetails";
+const userFields = {
+  dateOfBirth: { type: String, default: '' },
+  gender: { type: String, default: ''},
+  bloodType: { type: String, default: '' },
+  rhFactor: { type: String, default: '' },
+  city: { type: String, default: '' },
+  location: {
+    type: { type: String, default: 'Point' },
+    coordinates: { type: [Number], default: [0, 0] }
+  }
+};
+
+const hospitalFields = {
+  registrationNumber: { type: String, default: '' },
+  registrationCertificate: { type: String, default: '' },
+  hospitalImages: [{ type: String }],
+  hospitalName: { type: String, default: ''},
+  hospitalAddress: { type: String, default: ''},
+  city: { type: String, default: '' },
+  location: {
+    type: { type: String, default: 'Point' },
+    coordinates: { type: [Number], default: [0, 0] }
+  }
+};
+
+UserSchema.pre('findOneAndUpdate', function(next) {
+  if (this.accountType === 'User') {
+    console.log('pre - User')
+    this.additionalFields = Object.assign({}, this.additionalFields || {}, userFields);
+  } else if (this.accountType === 'Hospital') {
+    console.log('pre - Hospital')
+    this.additionalFields = Object.assign({}, this.additionalFields || {}, hospitalFields);
+  }
+  next();
 });
+
+// Create 2dsphere index on location field inside additionalDetails
+UserSchema.index({ 'additionalFields.location': '2dsphere' });
 
 const User = mongoose.model("User", UserSchema);
 

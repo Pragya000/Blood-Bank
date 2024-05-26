@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 export default function otpTemplate(otp, type) {
     const title = type === "signup" ? "Welcome to Blood Connect" : "Reset Password";
     const message =
@@ -7,6 +8,7 @@ export default function otpTemplate(otp, type) {
         ? `Thank you for registering with Blood Connect. To complete your registration, please use the following OTP
       (One-Time Password) to verify your account:`
         : "Please use the following OTP (One-Time Password) to reset your password:";
+    const url = process.env.NODE_ENV === "production" ? "https://bloodconnectmain.vercel.app" : "http://localhost:5173";
   
     return `<!DOCTYPE html>
       <html>
@@ -62,7 +64,7 @@ export default function otpTemplate(otp, type) {
       </head>
       <body>
           <div class="container">
-              <a href="http://localhost:5173"><img class="logo"
+              <a href=${url}><img class="logo"
                       src="https://res.cloudinary.com/dmavhhdac/image/upload/v1701079210/blood-connect/logo_mcyl3t.png" alt="Blood Connect"></a>
               <div class="message">${message}</div>
               <div class="body">

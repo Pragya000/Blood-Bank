@@ -1,11 +1,10 @@
 /* eslint-disable no-undef */
 import * as crypto from "crypto"
 
-// Encryption key and algorithm
-const encryptionKey = process.env.DECODE_ENCODE_SECRET;
+// Encryption algorithm
 const algorithm = "aes-256-cbc";
 
-export function encryptData(data) {
+export function encryptData(data, key=process.env.DECODE_ENCODE_SECRET) {
   // Convert the data to a Buffer
   const buffer = Buffer.from(data);
 
@@ -13,7 +12,7 @@ export function encryptData(data) {
   const iv = crypto.randomBytes(16);
 
   // Create a cipher using the encryption key and algorithm
-  const cipher = crypto.createCipheriv(algorithm, encryptionKey, iv);
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
 
   // Encrypt the data and IV
   const encryptedData = Buffer.concat([cipher.update(buffer), cipher.final()]);
@@ -24,7 +23,7 @@ export function encryptData(data) {
   return encodedData;
 }
 
-export function decryptData(encodedData) {
+export function decryptData(encodedData, key=process.env.DECODE_ENCODE_SECRET) {
   // Convert the encoded data to a Buffer
   const buffer = Buffer.from(encodedData, "base64");
 
@@ -33,7 +32,7 @@ export function decryptData(encodedData) {
   const encryptedData = buffer.slice(16);
 
   // Create a decipher using the encryption key, algorithm, and IV
-  const decipher = crypto.createDecipheriv(algorithm, encryptionKey, iv);
+  const decipher = crypto.createDecipheriv(algorithm, key, iv);
 
   // Decrypt the encrypted data
   const decryptedData = Buffer.concat([

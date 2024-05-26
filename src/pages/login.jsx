@@ -31,10 +31,15 @@ export default function Login() {
     mutationFn: (payload) => {
       return apiConnector("POST", LOGIN, payload);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Login successful!");
       setIsAuth(true);
-      location.replace('/profile')
+      console.log(data, '<---- here')
+      if(data?.data?.isAdmin) {
+        location.replace('/profile/admin/home')
+      } else {
+        location.replace('/profile')
+      }
     },
     onError: (error) => {
       toast.error(error?.response?.data?.message || "Something went wrong!");

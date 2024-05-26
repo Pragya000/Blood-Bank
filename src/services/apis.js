@@ -9,3 +9,12 @@ export const LOGOUT = `${BASE_URL}/auth/logout`;
 
 // User APIs
 export const GET_USER_DETAILS = `${BASE_URL}/user/user-details`;
+export const GET_USER_PROFILE_DETAILS = `${BASE_URL}/user/user-profile-details`;
+export const CREATE_USER_DETAILS = `${BASE_URL}/user/create-user-details`;
+
+// Hospital APIs
+export const CREATE_HOSPITAL_DETAILS = `${BASE_URL}/hospital/create-hospital-details`;
+
+// Admin APIs
+export const GET_HOSPITALS_LIST = `${BASE_URL}/admin/get-hospitals-list`;
+export const POPULATE_USER = `${BASE_URL}/admin/populate-user`;

@@ -8,7 +8,13 @@ import connect from "./config/database.js";
 
 import authRoutes from './routes/auth.js'
 import userRoutes from './routes/user.js'
+import adminRoutes from './routes/admin.js'
+import hospitalRoutes from './routes/hospital.js'
+
 import auth from "./middlewares/auth.js";
+import hospital_auth from "./middlewares/hospital.js";
+import admin_auth from "./middlewares/admin.js";
+import cloudinaryConnect from "./config/cloudinary.js";
 
 const app = express();
 
@@ -47,6 +53,9 @@ app.use(
 // Connecting to database
 connect();
 
+// Connect to cloudinary
+cloudinaryConnect()
+
 app.use('*', (req, res, next) => {
   //print details of incoming request
   console.log(`Incoming request: ${req.method} ${req.originalUrl}`);
@@ -57,6 +66,8 @@ app.use('*', (req, res, next) => {
 // App Routes
 app.use("/api/v1/auth", authRoutes);
 app.use('/api/v1/user', auth, userRoutes)
+app.use('/api/v1/admin', admin_auth, adminRoutes)
+app.use('/api/v1/hospital', hospital_auth, hospitalRoutes)
 
 // Test Route
 app.get("/", (req, res) => {

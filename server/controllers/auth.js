@@ -14,56 +14,56 @@ import * as crypto from "crypto";
 // route   POST /api/user/send-otp
 // access  Public
 export const sendOtp = async (req, res) => {
-    console.log("/api/user/sendOtp Body......", req.body);
-    const { email, type } = req.body;
-  
-    // Check if type is valid
-    if (!type || (type !== "signup" && type !== "forgot-password")) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid type",
-      });
-    }
-  
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Email is required",
-      });
-    }
-  
-    const { otp, otpToken } = createOtp(email, type);
-  
-    // Sending OTP to the user via email
-    try {
-      const mailResponse = await mailSender(
-        email,
-        "OTP for Blood Connect",
-        otpTemplate(otp, type)
-      );
-      console.log("Otp Email Sent Succesfully", mailResponse);
-    } catch (error) {
-      console.log("Could Not Send OTP Email", error);
-      return res.status(500).json({
-        success: false,
-        message: "Something went wrong",
-      });
-    }
-  
-    // set otptoken in cookie and send response
-    res
-      .cookie("otpToken", otpToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 5 * 60 * 1000,
-      })
-      .status(200)
-      .json({
-        success: true,
-        message: "Otp Sent Successfully",
-      });
-  };
+  console.log("/api/user/sendOtp Body......", req.body);
+  const { email, type } = req.body;
+
+  // Check if type is valid
+  if (!type || (type !== "signup" && type !== "forgot-password")) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid type",
+    });
+  }
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Email is required",
+    });
+  }
+
+  const { otp, otpToken } = createOtp(email, type);
+
+  // Sending OTP to the user via email
+  try {
+    const mailResponse = await mailSender(
+      email,
+      "OTP for Blood Connect",
+      otpTemplate(otp, type)
+    );
+    console.log("Otp Email Sent Succesfully", mailResponse);
+  } catch (error) {
+    console.log("Could Not Send OTP Email", error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+
+  // set otptoken in cookie and send response
+  res
+    .cookie("otpToken", otpToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 5 * 60 * 1000,
+    })
+    .status(200)
+    .json({
+      success: true,
+      message: "Otp Sent Successfully",
+    });
+};
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -97,7 +97,7 @@ export const signUp = async (req, res) => {
     });
   }
 
-  if(accountType !== "User" && accountType !== "Hospital"){
+  if (accountType !== "User" && accountType !== "Hospital") {
     return res.status(400).json({
       success: false,
       message: "Invalid Account Type",
@@ -130,7 +130,7 @@ export const signUp = async (req, res) => {
     email,
     accountType,
     password: hashedPassword,
-    isApproved: false,
+    approvalStatus: "Started"
   });
 
   // Save user to the database
@@ -195,7 +195,6 @@ export const login = async (req, res) => {
     {
       id: existingUser._id,
       email: existingUser.email,
-      isApproved: existingUser.isApproved,
       accountType: existingUser.accountType,
     },
     process.env.SECRET,
@@ -205,6 +204,15 @@ export const login = async (req, res) => {
     }
   );
 
+  const response = {
+    success: true,
+    message: "User Logged In Successfully",
+  }
+
+  if(existingUser?.accountType === 'Admin') {
+    response['isAdmin'] = true 
+  }
+
   res
     .cookie("token", token, {
       httpOnly: true,
@@ -213,10 +221,7 @@ export const login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     })
     .status(200)
-    .json({
-      success: true,
-      message: "User Logged In Successfully",
-    });
+    .json(response);
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -235,3 +240,36 @@ export const logout = async (req, res) => {
     message: "User Logged Out Successfully",
   });
 };
+
+export const createAdmin = async (req, res) => {
+  try {
+
+    const email = 'admin@bloodconnect.in'
+    const password = 'Admin@123'
+    const accountType = 'Admin'
+
+    // hash the password
+    const hashedPassword = crypto
+      .createHmac("sha256", process.env.SECRET)
+      .update(password)
+      .digest("hex");
+
+    // Create new user
+    const newUser = new User({
+      email,
+      accountType,
+      password: hashedPassword,
+      approvalStatus: "Approved"
+    });
+
+    // Save user to the database
+    await newUser.save();
+
+  } catch (error) {
+    console.log("Error Creating Admin", error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+}

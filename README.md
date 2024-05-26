@@ -35,3 +35,7 @@ CSS and Tailwind CSS are instrumental in shaping the visual appeal and responsiv
 
 - **Chanchal Mondal**
   - Roll No: 10800220094
+
+## External Resources
+
+[Data for Indian Cities](https://simplemaps.com/data/world-cities)
