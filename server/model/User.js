@@ -66,10 +66,8 @@ const hospitalFields = {
 
 UserSchema.pre('findOneAndUpdate', function(next) {
   if (this.accountType === 'User') {
-    console.log('pre - User')
     this.additionalFields = Object.assign({}, this.additionalFields || {}, userFields);
   } else if (this.accountType === 'Hospital') {
-    console.log('pre - Hospital')
     this.additionalFields = Object.assign({}, this.additionalFields || {}, hospitalFields);
   }
   next();

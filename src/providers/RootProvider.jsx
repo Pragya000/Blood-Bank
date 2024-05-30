@@ -12,24 +12,30 @@ const queryClient = new QueryClient();
 export default function RootProvider() {
   const [sessionExpired, setSessionExpired] = useState(false);
   const initialized = useRef(false);
-  const { user, setUser, isAuth, setIsAuth } = useUser()
+  const { user, setUser, isAuth, setIsAuth, accountType, setAccountType, approvalStatus, setApprovalStatus } = useUser()
 
   useEffect(()=>{
     if(!initialized.current){
       initialized.current = true;
-      if(isAuth && !user) {
+      if(isAuth && accountType && approvalStatus && !user) {
         (async()=>{
           try {
             const data = await apiConnector('GET', GET_USER_DETAILS)
             console.log(data)
             if(!data?.data?.data?.user) {
               setIsAuth(false)
+              setAccountType(null)
+              setApprovalStatus(null)
               setSessionExpired(true)
             }
             setUser(data?.data?.data?.user)
+            setAccountType(data?.data?.data?.user?.accountType)
+            setApprovalStatus(data?.data?.data?.user?.approvalStatus)
           } catch(error) {
             console.log(error)
             setIsAuth(false)
+            setAccountType(null)
+            setApprovalStatus(null)
             setSessionExpired(true)
           }
         })()
@@ -60,8 +66,11 @@ export default function RootProvider() {
         {!sessionExpired ? (
           <RouterProviderMain />
         ) : (
-          <div>
-            <h1>Session Expired</h1>
+          <div className="grid place-content-center min-h-screen">
+            <h1 className="text-2xl text-center font-semibold mb-4">Session Expired</h1>
+            <button onClick={() => location.reload()} className="bg-blue-500 text-white rounded-md px-4 py-2">
+              Login
+            </button>
           </div>
         )}
         <Toaster />

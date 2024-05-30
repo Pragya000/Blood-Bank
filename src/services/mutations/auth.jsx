@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 export const useLogoutMutation = () => {
 
-    const { setIsAuth, setUser } = useUser()
+    const { setIsAuth, setUser, setAccountType, setApprovalStatus } = useUser()
     const navigate = useNavigate();
 
     const mutation = useMutation({
@@ -17,6 +17,8 @@ export const useLogoutMutation = () => {
         onSuccess: () => {
             setIsAuth(false);
             setUser(null);
+            setAccountType(null);
+            setApprovalStatus(null);
             navigate("/login");
             toast.success("Logged Out Successfully");
         },

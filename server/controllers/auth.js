@@ -209,9 +209,8 @@ export const login = async (req, res) => {
     message: "User Logged In Successfully",
   }
 
-  if(existingUser?.accountType === 'Admin') {
-    response['isAdmin'] = true 
-  }
+  response['accountType'] = existingUser.accountType
+  response['approvalStatus'] = existingUser.approvalStatus
 
   res
     .cookie("token", token, {

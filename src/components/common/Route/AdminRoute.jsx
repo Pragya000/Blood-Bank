@@ -1,17 +1,34 @@
+/* eslint-disable react/prop-types */
 import { Navigate } from "react-router-dom";
 import { useUser } from "../../../store/useUser";
-import PropTypes from 'prop-types'
 
-export default function AdminRoute({ children }) {
-  const { isAuth, user } = useUser();
+export default function AdminRoute({children}) {
+  const { isAuth, accountType } = useUser();
+  // const location = useLocation();
 
-  if (isAuth && user?.accountType === "Admin") {
-    return children;
+  if (isAuth) {
+
+    if(accountType !== 'Admin') {
+      return <Navigate to="/profile" />;
+    }
+
+    return children
   } else {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login"/>;
   }
-}
 
-AdminRoute.propTypes = {
-    children: PropTypes.node.isRequired,
+  // return (
+  //   <Route
+  //     {...rest}
+  //     render={(props) =>
+  //       isAuth  ? (
+  //         <>
+  //         {accountType !== 'Admin'? <Navigate to="/profile" /> : <Component {...props} />}
+  //         </>
+  //       ) : (
+  //         <Navigate to="/login" />
+  //       )
+  //     }
+  //   />
+  // )
 }

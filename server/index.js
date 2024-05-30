@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import fileUpload from "express-fileupload";
 import connect from "./config/database.js";
+import cloudinaryConnect from "./config/cloudinary.js";
 
 import authRoutes from './routes/auth.js'
 import userRoutes from './routes/user.js'
@@ -14,7 +15,6 @@ import hospitalRoutes from './routes/hospital.js'
 import auth from "./middlewares/auth.js";
 import hospital_auth from "./middlewares/hospital.js";
 import admin_auth from "./middlewares/admin.js";
-import cloudinaryConnect from "./config/cloudinary.js";
 
 const app = express();
 

@@ -4,7 +4,7 @@ import MyImage from "../components/common/MyImage";
 import { useUser } from "../store/useUser";
 
 export default function Home() {
-  const { isAuth } = useUser();
+  const { isAuth, user } = useUser();
   const navigate = useNavigate();
 
   return (
@@ -12,7 +12,13 @@ export default function Home() {
       <MyImage alt="Blood Connect" src={Logo} className="w-[250px]" />
       <button
         onClick={() => {
-          if (isAuth) navigate("/profile");
+          if (isAuth) {
+            if(user?.accountType === 'Admin') {
+              navigate("/admin/home");
+            } else {
+              navigate("/profile");
+            }
+          }
           else navigate("/login");
         }}
         className="bg-blue-500 text-white px-4 py-2 rounded-md mt-10"

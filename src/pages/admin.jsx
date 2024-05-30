@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Outlet, Link, useParams } from "react-router-dom";
 import { IoIosMenu, IoMdClose } from "react-icons/io";
-import Logo from "../../../assets/logo.png";
-import MyImage from "../../../components/common/MyImage";
-import { useLogoutMutation } from "../../../services/mutations/auth";
+import Logo from "../assets/logo.png";
+import MyImage from "../components/common/MyImage";
+import { useLogoutMutation } from "../services/mutations/auth";
 
-export default function AdminProfile() {
+export default function Admin() {
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const { path } = useParams()
@@ -31,7 +31,7 @@ export default function AdminProfile() {
 
     const renderSidebar = () => {
         return (
-            <div className="w-[270px] flex flex-col h-full border-r-2">
+            <div className="w-[270px] flex flex-col h-full border-r-2 bg-white">
                 <div className="flex item-center">
                     <button onClick={toggleSidebar} className="md:hidden px-2">
                         {isSidebarOpen ? <IoMdClose size={30} /> : <IoIosMenu size={30} />}
@@ -41,7 +41,7 @@ export default function AdminProfile() {
                 <div className="flex-1 flex flex-col">
                     {links.map((link, index) => {
                         return (
-                            <Link to={link.isAdminRoute ? `/profile/admin/${link.link}` : link.link} onClick={() => {
+                            <Link to={link.isAdminRoute ? `/admin/${link.link}` : link.link} onClick={() => {
                                 setIsSidebarOpen(false);
                             }} className={`px-4 py-2 border-t-2 ${index === links?.length - 1 ? 'border-b-2' : ''} ${path === link.link ? 'bg-gray-200' : ''}`} key={index}>
                                 {link.label}
@@ -72,7 +72,7 @@ export default function AdminProfile() {
                 </div>
                 {
                     isSidebarOpen ?
-                        <div className="fixed top-0 left-0 bg-white h-screen w-screen">
+                        <div className="fixed top-0 left-0 z-[100] h-screen w-screen">
                             {renderSidebar()}
                         </div>
                         : null

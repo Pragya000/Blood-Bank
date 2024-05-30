@@ -17,7 +17,7 @@ export default function Login() {
 
   useCustomTitle("Blood Connect | Login");
 
-  const { setIsAuth } = useUser();
+  const { setIsAuth, setAccountType, setApprovalStatus } = useUser();
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -33,10 +33,12 @@ export default function Login() {
     },
     onSuccess: (data) => {
       toast.success("Login successful!");
+      console.log(data?.data, '<---- here')
       setIsAuth(true);
-      console.log(data, '<---- here')
-      if(data?.data?.isAdmin) {
-        location.replace('/profile/admin/home')
+      setAccountType(data?.data?.accountType);
+      setApprovalStatus(data?.data?.approvalStatus);
+      if(data?.data?.accountType === 'Admin') {
+        location.replace('/admin/home')
       } else {
         location.replace('/profile')
       }

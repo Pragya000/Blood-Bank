@@ -18,3 +18,6 @@ export const CREATE_HOSPITAL_DETAILS = `${BASE_URL}/hospital/create-hospital-det
 // Admin APIs
 export const GET_HOSPITALS_LIST = `${BASE_URL}/admin/get-hospitals-list`;
 export const POPULATE_USER = `${BASE_URL}/admin/populate-user`;
+
+// Post APIs
+export const CREATE_POST = `${BASE_URL}/post/create-post`;

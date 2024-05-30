@@ -4,7 +4,6 @@ import { useMutation } from '@tanstack/react-query';
 import { apiConnector } from '../../../services/apiConnector';
 import { CREATE_HOSPITAL_DETAILS } from '../../../services/apis';
 import toast from 'react-hot-toast';
-import { useUser } from '../../../store/useUser';
 import AsyncSelect from "react-select/async";
 import cityData from '../../../data/indian_cities.json'
 
@@ -16,8 +15,6 @@ export default function HospitalUnApprovedView() {
     const [registrationCertificate, setRegistrationCertificate] = useState(null);
     const [hospitalImages, setHospitalImages] = useState([]);
     const [errors, setErrors] = useState({});
-  
-    const { setUser } = useUser();
   
     const filterCities = (value) => {
       const inputValue = value.trim().toLowerCase();
@@ -62,9 +59,9 @@ export default function HospitalUnApprovedView() {
       mutationFn: (payload) => {
         return apiConnector('POST', CREATE_HOSPITAL_DETAILS, payload);
       },
-      onSuccess: (data) => {
-        setUser(data?.data?.data?.updatedUser);
+      onSuccess: () => {
         toast.success('Profile updated successfully!');
+        window.location.reload();
       },
       onError: (error) => {
         toast.error(error?.response?.data?.message || 'Something went wrong!');
@@ -127,7 +124,7 @@ export default function HospitalUnApprovedView() {
     };
   
     return (
-      <div className='pb-10'>
+      <div className='pb-10 pt-4'>
         <h3 className='text-xl font-bold my-4'>Complete Your Profile</h3>
         <form onSubmit={handleSubmit} className='max-w-[600px] space-y-2'>
           {/* Hospital Name */}

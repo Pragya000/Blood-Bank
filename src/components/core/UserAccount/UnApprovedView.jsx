@@ -6,7 +6,6 @@ import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiConnector } from "../../../services/apiConnector";
 import { CREATE_USER_DETAILS } from "../../../services/apis";
-import { useUser } from "../../../store/useUser";
 
 export default function UserUnApprovedView() {
 
@@ -18,7 +17,6 @@ export default function UserUnApprovedView() {
         rhFactor: "",
         cityId: "",
     })
-    const { setUser } = useUser()
 
     const genderOptions = [
         { value: "Male", label: "Male" },
@@ -73,9 +71,9 @@ export default function UserUnApprovedView() {
         mutationFn: (payload) => {
             return apiConnector("POST", CREATE_USER_DETAILS, payload);
         },
-        onSuccess: (data) => {
-            setUser(data?.data?.updatedUser)
+        onSuccess: () => {
             toast.success("Profile updated successfully!");
+            window.location.reload();
         },
         onError: (error) => {
             toast.error(error?.response?.data?.message || "Something went wrong!");
@@ -97,7 +95,7 @@ export default function UserUnApprovedView() {
     }
 
     return (
-        <div>
+        <div className='pt-4'>
             <h3 className='text-xl font-bold my-4'>Complete Your Profile</h3>
             <form onSubmit={handleFormSubmit} className="max-w-[600px]">
                 <label>Name<sup className="text-red-500">*</sup>:</label>

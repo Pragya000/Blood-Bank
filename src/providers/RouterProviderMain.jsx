@@ -1,4 +1,5 @@
-import { createBrowserRouter, RouterProvider, useParams } from "react-router-dom";
+/* eslint-disable react/prop-types */
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, useParams } from "react-router-dom";
 import Home from "../pages/home";
 import PublicRoute from "../components/common/Route/PublicRoute";
 import PrivateRoute from "../components/common/Route/PrivateRoute";
@@ -11,17 +12,30 @@ import Profile from "../pages/profile";
 import AdminHome from "../components/core/AdminAccount/Home";
 import HospitalsList from "../components/core/AdminAccount/HospitalsList";
 import PopulateUser from "../components/core/AdminAccount/PopulateUser";
+import BasicDetails from "../components/core/UserAccount/BasicDetails";
+import Requests from "../components/core/UserAccount/Requests";
+import Registrations from "../components/core/UserAccount/Registrations";
+import Certificates from "../components/core/UserAccount/Certificates";
+import Reviews from "../components/core/UserAccount/Reviews";
+import Settings from "../components/core/UserAccount/Settings";
+import Feed from "../pages/feed";
+import Admin from "../pages/admin";
+import FindDonors from "../pages/find-donors";
+import FindHospitals from "../pages/find-hospitals";
+import Hospital from "../pages/hospital";
+import Post from "../pages/post";
 
 export default function RouterProviderMain() {
 
   const DynamicAdminComponent = () => {
     const { path } = useParams();
+
     // Handle different dynamic routes here
     switch (path) {
       case 'home':
         return <AdminHome />;
       case 'hospitals-list':
-        return <HospitalsList/>;
+        return <HospitalsList />;
       case 'populate-user':
         return <PopulateUser />
       default:
@@ -29,48 +43,136 @@ export default function RouterProviderMain() {
     }
   };
 
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <Home />,
-    },
-    {
-      path: "/login",
-      element: <PublicRoute>
-        <Login />
-      </PublicRoute> 
-      ,
-    },
-    {
-      path: "/signup",
-      element: <PublicRoute>
-        <Signup />
-      </PublicRoute>,
-    },
-    {
-      path: "/verify-otp",
-      element: <PublicRoute>
-        <VerifyOtp />
-      </PublicRoute>,
-    },
-    {
-      path: '/profile',
-      element: <PrivateRoute>
-        <Profile />
-      </PrivateRoute>,
-      children: [
-        {
-          path: 'admin/:path',
-          element: <AdminRoute>
-            <DynamicAdminComponent />
-          </AdminRoute>
-        }
-      ]
-    },
-    {
-      path: "*",
-      element: <Error />,
-    },
-  ]);
+  const DynamicUserComponent = () => {
+    const { path } = useParams();
+
+    // Handle different dynamic routes here
+    switch (path) {
+      case 'basic-details':
+        return <BasicDetails />
+      case 'requests':
+        return <Requests />
+      case 'registrations':
+        return <Registrations />
+      case 'certificates':
+        return <Certificates />
+      case 'reviews':
+        return <Reviews />
+      case 'settings':
+        return <Settings />
+      default:
+        return <Error />;
+    }
+
+  }
+
+  // const router = createBrowserRouter([
+  //   {
+  //     path: "/",
+  //     element: <Home />,
+  //   },
+  //   {
+  //     path: "/login",
+  //     element: <PublicRoute>
+  //       <Login />
+  //     </PublicRoute>
+  //     ,
+  //   },
+  //   {
+  //     path: "/signup",
+  //     element: <PublicRoute>
+  //       <Signup />
+  //     </PublicRoute>,
+  //   },
+  //   {
+  //     path: "/verify-otp",
+  //     element: <PublicRoute>
+  //       <VerifyOtp />
+  //     </PublicRoute>,
+  //   },
+  //   {
+  //     path: '/admin',
+  //     element: <AdminRoute>
+  //       <Admin />
+  //     </AdminRoute>,
+  //     children: [
+  //       {
+  //         path: ':path',
+  //         element: <DynamicAdminComponent />
+  //       }
+  //     ]
+  //   },
+  //   {
+  //     path: '/profile',
+  //     element: <PrivateRoute>
+  //       <Profile />
+  //     </PrivateRoute>,
+  //     children: [
+  //       {
+  //         path: ':path',
+  //         element: <DynamicUserComponent />
+  //       },
+  //     ]
+  //   },
+  //   {
+  //     path: '/feed',
+  //     element: <PrivateRoute>
+  //       <Feed />
+  //     </PrivateRoute>,
+  //   },
+  //   {
+  //     path: '/post/:postId',
+  //     element: <PrivateRoute>
+  //       <Post />
+  //     </PrivateRoute>,
+  //   },
+  //   {
+  //     path: '/find-donors',
+  //     element: <PrivateRoute>
+  //       <FindDonors />
+  //     </PrivateRoute>, 
+  //   },
+  //   {
+  //     path: '/find-hospitals',
+  //     element: <PrivateRoute>
+  //       <FindHospitals />
+  //     </PrivateRoute>,
+  //   },
+  //   {
+  //     path: '/hospital/:hospitalId',
+  //     element: <PrivateRoute>
+  //       <Hospital />
+  //     </PrivateRoute>,
+  //   },
+  //   {
+  //     path: "*",
+  //     element: <Error />,
+  //   },
+  // ]);
+
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <>
+      <Route path="/" element={<Home />} />,
+      <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />,
+      <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />,
+      <Route path="/verify-otp" element={<PublicRoute><VerifyOtp /></PublicRoute>} />,
+      <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>}>
+        <Route path=":path" element={<DynamicAdminComponent />} />
+      </Route>,
+      <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>}>
+        <Route path=":path" element={<DynamicUserComponent />} />
+      </Route>,
+      <Route path="/feed" element={<PrivateRoute><Feed /></PrivateRoute>} />,
+      <Route path="/post/:postId" element={<PrivateRoute><Post /></PrivateRoute>} />,
+      <Route path="/find-donors" element={<PrivateRoute><FindDonors /></PrivateRoute>} />,
+      <Route path="/find-hospitals" element={<PrivateRoute><FindHospitals /></PrivateRoute>} />,
+      <Route path="/hospital/:hospitalId" element={<PrivateRoute><Hospital /></PrivateRoute>} />,
+      <Route path="*" element={<Error />} />
+      </>
+    )
+  );
+
   return <RouterProvider router={router} />;
+
 }
