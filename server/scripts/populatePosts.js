@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import User from "../model/User.js";
 import Post from "../model/Post.js";
 const MONGO_URI =
-  "mongodb+srv://soumyabanerjeedev:FYQkDAPRYLDYmblB@main.lmch4hc.mongodb.net/blood-connect-dev";
+  "";
 
 function getRandomFutureDateTime() {
   const now = new Date();

@@ -20,7 +20,7 @@ export default function AdminHospitalsList() {
 
     const [approvalStatus, setApprovalStatus] = useState('');
     const [page, setPage] = useState(1);
-    const limit = 2;
+    const limit = 10;
 
     const { data, isLoading, isError, error } = useQuery(
         ['hospitals', page, limit, approvalStatus],
