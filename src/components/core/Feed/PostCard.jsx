@@ -67,7 +67,7 @@ export default function PostCard({ post }) {
                 }
               />
             </div>
-            {post?.user?._id !== user?._id ? 
+            {((post?.user?._id !== user?._id) && (user?.accountType !== 'Hospital')) ? 
               <button className="bg-blue-500 text-sm hover:bg-opacity-90 text-white rounded-md px-4 py-1 flex items-center gap-x-2">
               Interested
             </button>
@@ -140,7 +140,7 @@ export default function PostCard({ post }) {
                 />
             </div>
             {
-              post?.user?._id !== user?._id ?
+              ((post?.user?._id !== user?._id) && (user?.accountType !== 'Hospital')) ?
               <button disabled={!(new Date(post.timing) > new Date())} className="bg-blue-500 disabled:bg-opacity-40 text-sm hover:bg-opacity-90 text-white rounded-md px-4 py-1 flex items-center gap-x-2">
               {
                 new Date(post.timing) > new Date() ? "Register" : "Expired"
