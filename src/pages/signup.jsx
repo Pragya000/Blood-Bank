@@ -20,7 +20,7 @@ export default function Signup() {
     // access zustand store
   const { setPayload, setOtpType } = useUser();
 
-    useCustomTitle("Blood Connect | Signup");
+    useCustomTitle("Signup | Blood Connect");
 
     const handleEmailChange = (e) => {
         setEmail(e.target.value);

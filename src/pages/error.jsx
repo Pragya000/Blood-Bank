@@ -5,7 +5,7 @@ import MyImage from "../components/common/MyImage";
 
 export default  function Error() {
 
-    useCustomTitle("Blood Connect | 404 Page Not Found")
+    useCustomTitle("404 | Blood Connect")
 
     return (
         <div className="w-screen h-screen grid place-content-center">

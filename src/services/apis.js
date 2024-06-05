@@ -23,3 +23,7 @@ export const POPULATE_USER = `${BASE_URL}/admin/populate-user`;
 export const CREATE_POST = `${BASE_URL}/posts/create-post`;
 export const GET_POSTS = `${BASE_URL}/posts/get-posts`;
 export const GET_POST_DETAILS = `${BASE_URL}/posts/get-post-details`;
+
+// Find APIs
+export const FIND_DONORS = `${BASE_URL}/find/donors`;
+export const FIND_HOSPITALS = `${BASE_URL}/find/hospitals`;

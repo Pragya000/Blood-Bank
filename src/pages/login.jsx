@@ -15,7 +15,7 @@ export default function Login() {
   const [error, setError] = useState("");
   // const navigate = useNavigate()
 
-  useCustomTitle("Blood Connect | Login");
+  useCustomTitle("Login | Blood Connect");
 
   const { setIsAuth, setAccountType, setApprovalStatus } = useUser();
 

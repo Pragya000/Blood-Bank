@@ -11,7 +11,7 @@ import { Outlet } from "react-router-dom";
 
 export default function Profile() {
   const { user } = useUser();
-  useCustomTitle("Blood Connect | Profile");
+  useCustomTitle("Profile | Blood Connect");
 
   const userview = useMemo(() => {
     const accountType = user?.accountType;

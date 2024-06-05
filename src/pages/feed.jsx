@@ -29,7 +29,7 @@ const fetchPosts = async (page = 1, limit = 12, maxDistanceInMeters, type) => {
 };
 
 export default function Feed() {
-  useCustomTitle("Blood Connect | Feed");
+  useCustomTitle("Feed | Blood Connect");
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [filterModalOpen, setFilterModalOpen] = useState(false);

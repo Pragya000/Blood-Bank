@@ -17,7 +17,7 @@ export default function VerifyOtp() {
   const [isOtpValid, setIsOtpValid] = useState(true);
   const navigate = useNavigate();
 
-  useCustomTitle("Blood Connect | Verify OTP");
+  useCustomTitle("Verify OTP | Blood Connect");
 
   // access zustand store
   const { otpType, payload, setOtpType, setPayload } = useUser();

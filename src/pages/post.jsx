@@ -4,6 +4,7 @@ import { GET_POST_DETAILS } from "../services/apis";
 import { useQuery } from "@tanstack/react-query";
 import PostCard from "../components/core/Feed/PostCard";
 import { IoArrowBack } from "react-icons/io5";
+import useCustomTitle from "../hooks/useCustomTitle";
 
 const fetchPostDetails = async (postId) => {
   const data = await apiConnector("GET", GET_POST_DETAILS + `/${postId}`);
@@ -11,6 +12,9 @@ const fetchPostDetails = async (postId) => {
 };
 
 export default function Post() {
+
+  useCustomTitle("Post | Blood Connect");
+
   const { postId } = useParams();
   const navigate = useNavigate();
   const { data, isLoading, isError, error } = useQuery(
@@ -30,7 +34,7 @@ export default function Post() {
       ) : isError ? (
         <p>{error.message}</p>
       ) : data?.data?.post ? (
-        <div className="max-w-[550px]">
+        <div className="w-[90vw] sm:w-[550px] ">
         <PostCard post={data?.data?.post} />
         </div>
       ) : (
