@@ -1,11 +1,13 @@
 /* eslint-disable react/prop-types */
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaUsers, FaClock as CalendarIcon } from "react-icons/fa";
 import Chip from "../../common/Chip";
 import moment from "moment";
-import { IoLocationOutline } from "react-icons/io5";
+import { IoEyeOutline, IoLocationOutline } from "react-icons/io5";
 import { useUser } from "../../../store/useUser";
+import { PiShareFatThin } from "react-icons/pi";
+import toast from "react-hot-toast";
 
 export default function PostCard({ post }) {
   const postUserType = post?.user?.accountType;
@@ -15,6 +17,9 @@ export default function PostCard({ post }) {
       ? post?.user?.name
       : post?.user?.additionalFields?.hospitalName;
   const {user} = useUser()
+  const location = useLocation()
+  const path = location.pathname.split('/')?.[1]
+  const currentLocation = path === 'feed' ? 'feed' : path === 'post' ? 'post' : ''
 
   const postContent = useMemo(() => {
     if (postType === "Request") {
@@ -102,7 +107,9 @@ export default function PostCard({ post }) {
           </p>
           <p>
             <span className="font-semibold text-gray-800">Address:</span><br/>{" "}
-            <span className="font-light text-sm">{post?.user?.additionalFields?.hospitalAddress}</span>
+            <span className="font-light text-sm">{currentLocation === 'post' ? post?.user?.additionalFields?.hospitalAddress :
+            post?.user?.additionalFields?.hospitalAddress.length > 72 ? post?.user?.additionalFields?.hospitalAddress.slice(0, 72) + '...' : post?.user?.additionalFields?.hospitalAddress
+             }</span>
           </p>
           {post?.additionalInfo ? (
             <p className="font-light">
@@ -110,7 +117,9 @@ export default function PostCard({ post }) {
                 Additional Information:
               </span>
               <br />
-              <span className="text-sm">{post?.additionalInfo}</span>
+              <span className="text-sm">{currentLocation === 'post' ? post?.additionalInfo : 
+              post?.additionalInfo.length > 72 ? post?.additionalInfo.slice(0, 72) + '...' : post?.additionalInfo
+              }</span>
             </p>
           ) : null}
           <div className="flex items-center space-x-2 my-4 text-sm font-light">
@@ -205,6 +214,20 @@ export default function PostCard({ post }) {
         </div>
       </div>
       {postContent}
+      <div className="mt-3 flex items-center gap-x-2 max-w-max ml-auto">
+          { currentLocation !== 'post' ?
+            <Link to={`/post/${post?._id}`}title="View Post">
+                <IoEyeOutline className="text-blue-500 text-2xl hover:text-blue-400 stroke-2" />
+          </Link>
+          : null
+          }
+          <button onClick={()=>{
+            navigator.clipboard.writeText('https://bloodconnectmain.vercel.app' + `/post/${post?._id}`)
+            toast.success("Link Copied")
+          }} title="Share Post">
+            <PiShareFatThin className="text-blue-500 text-2xl hover:text-blue-400 !stroke-[6px]" />
+          </button>
+          </div>
       {post?.distance?.toString() ? (
         <div className="absolute w-20 aspect-square bg-blue-500 top-0 right-0 rounded-bl-full">
           <div className="flex flex-col items-center justify-center space-y-1 text-white absolute top-3 right-3">

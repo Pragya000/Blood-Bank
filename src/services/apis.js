@@ -22,3 +22,4 @@ export const POPULATE_USER = `${BASE_URL}/admin/populate-user`;
 // Post APIs
 export const CREATE_POST = `${BASE_URL}/posts/create-post`;
 export const GET_POSTS = `${BASE_URL}/posts/get-posts`;
+export const GET_POST_DETAILS = `${BASE_URL}/posts/get-post-details`;
