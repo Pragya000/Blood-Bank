@@ -20,4 +20,5 @@ export const GET_HOSPITALS_LIST = `${BASE_URL}/admin/get-hospitals-list`;
 export const POPULATE_USER = `${BASE_URL}/admin/populate-user`;
 
 // Post APIs
-export const CREATE_POST = `${BASE_URL}/post/create-post`;
+export const CREATE_POST = `${BASE_URL}/posts/create-post`;
+export const GET_POSTS = `${BASE_URL}/posts/get-posts`;

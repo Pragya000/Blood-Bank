@@ -32,7 +32,11 @@ const UserSchema = new mongoose.Schema(
     },
     additionalFields: {
       type: mongoose.Schema.Types.Mixed,
-    }
+    },
+    posts: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+    }]
   },
   {
     timestamps: true,
