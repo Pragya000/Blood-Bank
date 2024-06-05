@@ -183,7 +183,7 @@ export default function PostCard({ post }) {
         <div>
           {postUserType === "User" ? (
             <div className="flex items-center gap-x-1">
-            <p className="font-semibold text-sm truncate max-w-48">{displayName}</p>
+            <p className="font-semibold text-sm truncate max-w-[12rem]">{displayName}</p>
             {post?.user?._id === user?._id ? (
               <div className="text-xs font-medium bg-indigo-400 rounded-full text-white max-w-max px-2">
                 You
@@ -193,7 +193,7 @@ export default function PostCard({ post }) {
           ) : (
             <div className="flex items-center gap-x-1">
             <Link
-              className="font-semibold block text-sm truncate max-w-48"
+              className="font-semibold block text-sm truncate max-w-[12rem]"
               to={`/hospital/${post?.user?._id}`}
             >
               {displayName}
