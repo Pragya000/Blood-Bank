@@ -3,6 +3,10 @@ import useCustomTitle from "../hooks/useCustomTitle";
 import { apiConnector } from "../services/apiConnector";
 import { FIND_DONORS } from "../services/apis";
 import { useQuery } from "@tanstack/react-query";
+import Modal from "../components/common/Modal";
+import { useEffect, useState } from "react";
+import { CiFilter } from "react-icons/ci";
+import { RiPinDistanceLine } from "react-icons/ri";
 
 const fetchDonors = async (page = 1, limit = 12, maxDistanceInMeters) => {
     const params = {
@@ -22,9 +26,12 @@ export default function FindDonors() {
     useCustomTitle("Find Donors | Blood Connect")
 
     const [searchParams, setSearchParams] = useSearchParams();
+    const [filterModalOpen, setFilterModalOpen] = useState(false);
     const page = Number(searchParams.get("page")) || 0;
     const distance = Number(searchParams.get("distance")) || null;
     const limit = 12;
+    const [filterDistance, setFilterDistance] = useState(
+      distance ? Number(distance) / 1000 : 0)
 
     const { data, isLoading, isError, error, isFetching, refetch } = useQuery(
         ["donors", page, limit, distance],
@@ -36,11 +43,88 @@ export default function FindDonors() {
         }
     )
 
-    console.log(data)
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, [page]);
+
+    const closeFilterModal = () => {
+      const oldDistance = Number(searchParams.get("distance")) || 0;
+      setFilterDistance(Number(oldDistance) / 1000);
+    };
+  
+    const applyFilter = () => {
+      if (filterDistance === 0) {
+        searchParams.delete("distance");
+      } else {
+        searchParams.set("distance", filterDistance * 1000);
+      }
+  
+      searchParams.set("page", 0);
+  
+      setSearchParams(searchParams);
+      setFilterModalOpen(false);
+    };
 
     return (
-        <div>
-            Find Donors
+      <>
+        <div className="w-11/12 max-w-[1200px] mx-auto py-6 pb-16">
+          <div>
+          <div className="flex items-center justify-between flex-wrap gap-y-5 space-x-2">
+            <button
+              onClick={() => {
+                setFilterModalOpen(true);
+              }}
+              className="flex items-center gap-x-2 bg-blue-100 hover:bg-opacity-70 border-blue-500 rounded-lg text-blue-500 font-medium px-4 py-2 relative"
+            >
+              <CiFilter className="text-lg stroke-1" />
+              <span>Filter</span>
+              {(distance && distance > 0) ? (
+                <div className="w-5 h-5 bg-blue-500 rounded-full absolute -top-[0.45rem] -right-[0.45rem]">
+                  <span className="text-white text-xs font-medium absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2">
+                    1
+                  </span>
+                </div>
+              ) : null}
+            </button>
+            {distance && distance > 0 ? (
+              <div className="flex items-center gap-x-2 text-sm bg-blue-100 hover:bg-opacity-70 border-blue-500 rounded-lg text-blue-500 font-medium px-3 py-1">
+                <RiPinDistanceLine className="text-lg stroke-1" />
+                <p>{distance / 1000} Km</p>
+              </div>
+            ) : null}
+          </div>
+          </div>
         </div>
+        <Modal
+        open={filterModalOpen}
+        setOpen={setFilterModalOpen}
+        title={"Filter Posts"}
+        btnText="Apply"
+        onClose={closeFilterModal}
+        submitHandler={applyFilter}
+      >
+        <div className="p-4">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="points">Distance (between 0Km and 100Km):</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="range"
+                id="points"
+                value={filterDistance}
+                onChange={(e) => {
+                  setFilterDistance(Number(e.target.value));
+                }}
+                name="points"
+                min="0"
+                max="100"
+                step="5"
+                className="w-[300px]"
+              />
+              <p>{filterDistance} Km</p>
+            </div>
+          </div>
+        </div>
+      </Modal>
+      </>
     )
 }

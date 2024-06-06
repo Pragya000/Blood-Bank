@@ -7,7 +7,8 @@ const getPipeline = (
   maxDistanceInMeters,
   type,
   page,
-  limit
+  limit,
+  userId
 ) => {
   let queryPipeline = [];
 
@@ -24,12 +25,26 @@ const getPipeline = (
       },
     });
     queryPipeline.push({
+      $match: {
+        _id: {
+          $ne: userId,
+        }
+      }
+    })
+    queryPipeline.push({
       $sort: {
         distance: 1,
         createdAt: -1,
       },
     });
   } else {
+    queryPipeline.push({
+      $match: {
+        _id: {
+          $ne: userId,
+        }
+      }
+    })
     queryPipeline.push({
       $sort: {
         createdAt: -1,
@@ -101,7 +116,8 @@ export const findDonors = async (req, res) => {
       maxDistanceInMeters,
       "User",
       page,
-      limit
+      limit,
+      user._id
     );
 
     const donors = await User.aggregate(queryPipeline);
@@ -166,7 +182,8 @@ export const findHospitals = async (req, res) => {
       maxDistanceInMeters,
       "Hospital",
       page,
-      limit
+      limit,
+      user._id
     );
 
     const hospitals = await User.aggregate(queryPipeline);
