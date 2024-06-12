@@ -4,8 +4,11 @@ import { IoIosMenu, IoMdClose } from "react-icons/io";
 import Logo from "../assets/logo.png";
 import MyImage from "../components/common/MyImage";
 import { useLogoutMutation } from "../services/mutations/auth";
+import useCustomTitle from "../hooks/useCustomTitle";
 
 export default function Admin() {
+
+    useCustomTitle('Admin | Blood Connect');
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const { path } = useParams()
