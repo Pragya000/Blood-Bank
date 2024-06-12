@@ -12,6 +12,7 @@ export default function Modal({
   submitHandler = () => {},
   onClose = () => {},
   isDisabled = false,
+  hideFooter = false
 }) {
 
   useEffect(()=>{
@@ -36,7 +37,7 @@ export default function Modal({
         if (preventOutsideClick) return;
         handleClose()
       }}
-      className={`absolute !inset-0 z-[101] bg-black bg-opacity-30 backdrop-blur-sm grid place-content-center ${
+      className={`absolute !inset-0 z-[10001] bg-black bg-opacity-30 backdrop-blur-sm grid place-content-center ${
         !preventOutsideClick ? "cursor-pointer" : "cursor-auto"
       } `}
     >
@@ -53,14 +54,14 @@ export default function Modal({
           </button>
         </div>
         <div className="overflow-y-auto max-h-[54vh]">{children}</div>
-        <div className="w-full h-[8vh] border-t flex px-4 items-center justify-end gap-2">
+        {!hideFooter ? <div className="w-full h-[8vh] border-t flex px-4 items-center justify-end gap-2">
           <button onClick={handleClose} className="bg-blue-500 text-sm hover:bg-opacity-90 text-white rounded-md px-4 py-1 flex items-center gap-x-2">
             Close
           </button>
           <button disabled={isDisabled} onClick={submitHandler} className="bg-blue-500  text-sm hover:bg-opacity-90 text-white rounded-md px-4 py-1 flex items-center gap-x-2">
             {btnText}
           </button>
-        </div>
+        </div> : null}
       </div>
     </div>
   );

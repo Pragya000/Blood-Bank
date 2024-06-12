@@ -20,11 +20,11 @@ export default function Admin() {
         link: 'home',
         isAdminRoute: true
     }, {
-        label: 'Hospitals List',
+        label: 'Manage Hospitals',
         link: 'hospitals-list',
         isAdminRoute: true
     }, {
-        label: 'Populate User',
+        label: 'Create Dummy Users',
         link: 'populate-user',
         isAdminRoute: true
     }]

@@ -1,5 +1,9 @@
 /* eslint-disable no-undef */
 import User from "../model/User.js";
+import _ from "lodash";
+import { decryptData } from "../utils/decodeEncode.js";
+import { calculateAge } from "../utils/calculateAge.js";
+const MONGO_FIELD_KEY = process.env.MONGO_FIELD_ENCRYPTION_SECRET;
 
 // @desc    Function to get pipeline for aggregation
 const getPipeline = (
@@ -56,6 +60,7 @@ const getPipeline = (
     _id: 1,
     name: 1,
     profilePic: 1,
+    distance: 1,
     createdAt: 1,
     updatedAt: 1,
   }
@@ -65,7 +70,7 @@ const getPipeline = (
         ...project,
         "additionalFields.hospitalName": 1,
         "additionalFields.hospitalAddress": 1,
-        "additionalFields.hospitalContact": 1,
+        "additionalFields.registrationNumber": 1,
         "additionalFields.city": 1
     }
   } else {
@@ -122,9 +127,21 @@ export const findDonors = async (req, res) => {
 
     const donors = await User.aggregate(queryPipeline);
 
+    const decryptedDonors = donors.map((donor) => {
+      const donorCopy = _.cloneDeep(donor);
+      donorCopy.additionalFields = {
+        bloodType: decryptData(donor.additionalFields.bloodType, MONGO_FIELD_KEY),
+        rhFactor: decryptData(donor.additionalFields.rhFactor, MONGO_FIELD_KEY),
+        age: calculateAge(decryptData(donor.additionalFields.dateOfBirth, MONGO_FIELD_KEY)),
+        gender: donor.additionalFields.gender,
+        city: donor.additionalFields.city,
+      }
+      return donorCopy;
+    })
+
     const result = {
       success: true,
-      donors: donors,
+      donors: decryptedDonors,
     };
 
     if (parseInt(page) > 0) {

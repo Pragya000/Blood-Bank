@@ -36,6 +36,21 @@ const UserSchema = new mongoose.Schema(
     posts: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "Post",
+    }],
+    requestsFullfilled: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Request",
+    }],
+    certificates: [{
+      link: String,
+      request: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Request",
+      }
+    }],
+    reviews: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Review",
     }]
   },
   {

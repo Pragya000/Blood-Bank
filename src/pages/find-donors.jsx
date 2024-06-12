@@ -7,68 +7,69 @@ import Modal from "../components/common/Modal";
 import { useEffect, useState } from "react";
 import { CiFilter } from "react-icons/ci";
 import { RiPinDistanceLine } from "react-icons/ri";
+import DonorCard from "../components/core/UserAccount/DonorCard";
 
 const fetchDonors = async (page = 1, limit = 12, maxDistanceInMeters) => {
-    const params = {
-      page,
-      limit,
-    };
-    if (maxDistanceInMeters) {
-      params.maxDistanceInMeters = maxDistanceInMeters;
-    }
-  
-    const data = await apiConnector("GET", FIND_DONORS, {}, {}, params);
-    return data;
+  const params = {
+    page,
+    limit,
   };
+  if (maxDistanceInMeters) {
+    params.maxDistanceInMeters = maxDistanceInMeters;
+  }
+
+  const data = await apiConnector("GET", FIND_DONORS, {}, {}, params);
+  return data;
+};
 
 export default function FindDonors() {
 
-    useCustomTitle("Find Donors | Blood Connect")
+  useCustomTitle("Find Donors | Blood Connect")
 
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [filterModalOpen, setFilterModalOpen] = useState(false);
-    const page = Number(searchParams.get("page")) || 0;
-    const distance = Number(searchParams.get("distance")) || null;
-    const limit = 12;
-    const [filterDistance, setFilterDistance] = useState(
-      distance ? Number(distance) / 1000 : 0)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const page = Number(searchParams.get("page")) || 0;
+  const distance = Number(searchParams.get("distance")) || null;
+  const limit = 12;
+  const [filterDistance, setFilterDistance] = useState(
+    distance ? Number(distance) / 1000 : 0)
 
-    const { data, isLoading, isError, error, isFetching, refetch } = useQuery(
-        ["donors", page, limit, distance],
-        () => fetchDonors(page, limit, distance),
-        {
-            keepPreviousData: true,
-            refetchIntervalInBackground: false,
-            refetchOnWindowFocus: false,
-        }
-    )
+  const { data, isLoading, isError, error, isFetching } = useQuery(
+    ["donors", page, limit, distance],
+    () => fetchDonors(page, limit, distance),
+    {
+      keepPreviousData: true,
+      refetchIntervalInBackground: false,
+      refetchOnWindowFocus: false,
+    }
+  )
 
-    useEffect(() => {
-      window.scrollTo(0, 0);
-    }, [page]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page]);
 
-    const closeFilterModal = () => {
-      const oldDistance = Number(searchParams.get("distance")) || 0;
-      setFilterDistance(Number(oldDistance) / 1000);
-    };
-  
-    const applyFilter = () => {
-      if (filterDistance === 0) {
-        searchParams.delete("distance");
-      } else {
-        searchParams.set("distance", filterDistance * 1000);
-      }
-  
-      searchParams.set("page", 0);
-  
-      setSearchParams(searchParams);
-      setFilterModalOpen(false);
-    };
+  const closeFilterModal = () => {
+    const oldDistance = Number(searchParams.get("distance")) || 0;
+    setFilterDistance(Number(oldDistance) / 1000);
+  };
 
-    return (
-      <>
-        <div className="w-11/12 max-w-[1200px] mx-auto py-6 pb-16">
-          <div>
+  const applyFilter = () => {
+    if (filterDistance === 0) {
+      searchParams.delete("distance");
+    } else {
+      searchParams.set("distance", filterDistance * 1000);
+    }
+
+    searchParams.set("page", 0);
+
+    setSearchParams(searchParams);
+    setFilterModalOpen(false);
+  };
+
+  return (
+    <>
+      <div className="w-11/12 max-w-[1200px] mx-auto py-6 pb-16">
+        <div>
           <div className="flex items-center justify-between flex-wrap gap-y-5 space-x-2">
             <button
               onClick={() => {
@@ -93,12 +94,56 @@ export default function FindDonors() {
               </div>
             ) : null}
           </div>
+          {data?.data ? (
+            <>
+              <div className="grid grid-cols-1 max-w-[400px] mx-auto sm:max-w-[unset] sm:mx-0 md:grid-cols-2 lg:grid-cols-3 gap-4 my-6">
+                {data?.data?.donors?.map((user) => (
+                  <DonorCard user={user} key={user?._id} />
+                ))}
+              </div>
+            </>
+          ) : isLoading || isFetching ? (
+            <div className="text-center mt-4">Loading Donors ...</div>
+          ) : isError ? (
+            <div className="text-center mt-4">{error.message}</div>
+          ) : null}
+        </div>
+      </div>
+      {!isError ? (
+        <div className="fixed bottom-0 inset-x-0 bg-white border-t border-t-gray-300">
+          <div className="w-11/12 max-w-[1200px] mx-auto flex items-center gap-x-6 py-4">
+            <button
+              disabled={!data?.data?.isPrev || isLoading || isFetching}
+              className="bg-blue-500 disabled:bg-opacity-40 text-sm hover:bg-opacity-90 text-white rounded-md px-4 py-1 flex items-center"
+              onClick={() => {
+                searchParams.set("page", page - 1);
+                setSearchParams(searchParams);
+              }}
+            >
+              Previous
+            </button>
+            {!isLoading || !isFetching ? (
+              <span className="text-gray-700">
+                Page <b>{parseInt(page) + 1}</b>
+              </span>
+            ) : null}
+            <button
+              disabled={!data?.data?.isNext || isLoading || isFetching}
+              className="bg-blue-500 disabled:bg-opacity-40 text-sm hover:bg-opacity-90 text-white rounded-md px-4 py-1 flex items-center gap-x-2"
+              onClick={() => {
+                searchParams.set("page", page + 1);
+                setSearchParams(searchParams);
+              }}
+            >
+              Next
+            </button>
           </div>
         </div>
-        <Modal
+      ) : null}
+      <Modal
         open={filterModalOpen}
         setOpen={setFilterModalOpen}
-        title={"Filter Posts"}
+        title={"Filter Donors"}
         btnText="Apply"
         onClose={closeFilterModal}
         submitHandler={applyFilter}
@@ -125,6 +170,6 @@ export default function FindDonors() {
           </div>
         </div>
       </Modal>
-      </>
-    )
+    </>
+  )
 }

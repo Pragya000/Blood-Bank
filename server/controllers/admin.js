@@ -7,6 +7,8 @@ const cityData = require('../data/indian_cities.json');
 import * as crypto from "crypto";
 const MONGO_FIELD_KEY = process.env.MONGO_FIELD_ENCRYPTION_SECRET;
 import { encryptData } from "../utils/decodeEncode.js";
+import mongoose from "mongoose";
+import moment from "moment";
 
 // @desc   Get List Hospital Users
 // route   GET /api/admin/get-hospitals-list
@@ -15,6 +17,10 @@ export const getHospitalsList = async (req, res) => {
   try {
     const { page = 1, limit = 10, approvalStatus } = req.query;
     const query = { accountType: 'Hospital' };
+
+    if (page < 1 || limit < 1) {
+      return res.status(400).json({ success: false, error: "Invalid page or limit" });
+    }
 
     if (approvalStatus) {
       query.approvalStatus = approvalStatus;
@@ -27,8 +33,13 @@ export const getHospitalsList = async (req, res) => {
 
     const total = await User.countDocuments(query);
 
+    const updatedHospitals = hospitals.map(hospital => {
+      hospital.password = undefined;
+      return hospital;
+    })
+
     res.json({
-      hospitals,
+      hospitals: updatedHospitals,
       total,
       page: parseInt(page),
       totalPages: Math.ceil(total / limit),
@@ -154,8 +165,8 @@ export const populateUser = async (req, res) => {
 
       const hospitalImages = [];
       for (let i = 0; i < 3; i++) {
-        if (req.body?.[`hospitalImages${i+1}`]) {
-          hospitalImages.push(req.body?.[`hospitalImages${i+1}`]);
+        if (req.body?.[`hospitalImages${i + 1}`]) {
+          hospitalImages.push(req.body?.[`hospitalImages${i + 1}`]);
         }
       }
 
@@ -191,3 +202,145 @@ export const populateUser = async (req, res) => {
     return res.status(500).json({ success: false, error: "Something went wrong" });
   }
 };
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// @desc  Change Status of Hospital
+// route  POST /api/admin/change-hospital-status/:id
+// access Private
+export const changeHospitalStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { action } = req.body;
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, error: "Please provide a valid id" });
+    }
+
+    if (!action || (action !== 'approve' && action !== 'reject')) {
+      return res.status(400).json({ success: false, error: "Please provide a valid" });
+    }
+
+    const hospital = await User.findById(
+      new mongoose.Types.ObjectId(id)
+    );
+
+    if (!hospital) {
+      return res.status(404).json({ success: false, error: "Hospital not found" });
+    }
+
+    const currentHospitalStatus = hospital.approvalStatus;
+
+    if (action === 'approve') {
+      if (currentHospitalStatus === 'Pending' || currentHospitalStatus === 'Rejected') {
+        hospital.approvalStatus = 'Approved';
+      } else {
+        return res.status(400).json({ success: false, error: "Invalid action" });
+      }
+    } else {
+      if (currentHospitalStatus === 'Pending' || currentHospitalStatus === 'Approved') {
+        hospital.approvalStatus = 'Rejected';
+      } else {
+        return res.status(400).json({ success: false, error: "Invalid action" });
+      }
+    }
+
+    await hospital.save();
+
+    res.json({ success: true });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, error: "Something went wrong" });
+  }
+};
+
+// @desc  Get Admin Stats
+// route  GET /api/admin/stats
+// access Private
+export const getAdminStats = async (req, res) => {
+  try {
+
+    const startOfWeek = moment().startOf('isoWeek').toDate();
+    const endOfWeek = moment().endOf('isoWeek').toDate();
+    const startOfMonth = moment().startOf('month').toDate();
+    const endOfMonth = moment().endOf('month').toDate();
+
+    const results = await User.aggregate([
+      {
+        $facet: {
+          userCount: [
+            { $match: { accountType: 'User' } },
+            { $count: 'count' }
+          ],
+          hospitalCount: [
+            { $match: { accountType: 'Hospital' } },
+            { $count: 'count' }
+          ],
+          usersLastWeek: [
+            {
+              $match: {
+                accountType: 'User',
+                createdAt: { $gte: startOfWeek, $lt: endOfWeek }
+              }
+            },
+            { $count: 'count' }
+          ],
+          hospitalsLastWeek: [
+            {
+              $match: {
+                accountType: 'Hospital',
+                createdAt: { $gte: startOfWeek, $lt: endOfWeek }
+              }
+            },
+            { $count: 'count' }
+          ],
+          usersLastMonth: [
+            {
+              $match: {
+                accountType: 'User',
+                createdAt: { $gte: startOfMonth, $lt: endOfMonth }
+              }
+            },
+            { $count: 'count' }
+          ],
+          hospitalsLastMonth: [
+            {
+              $match: {
+                accountType: 'Hospital',
+                createdAt: { $gte: startOfMonth, $lt: endOfMonth }
+              }
+            },
+            { $count: 'count' }
+          ]
+        }
+      }
+    ]);
+
+    const userCount = results[0].userCount[0] ? results[0].userCount[0].count : 0;
+    const hospitalCount = results[0].hospitalCount[0] ? results[0].hospitalCount[0].count : 0;
+    const usersLastWeek = results[0].usersLastWeek[0] ? results[0].usersLastWeek[0].count : 0;
+    const hospitalsLastWeek = results[0].hospitalsLastWeek[0] ? results[0].hospitalsLastWeek[0].count : 0;
+    const usersLastMonth = results[0].usersLastMonth[0] ? results[0].usersLastMonth[0].count : 0;
+    const hospitalsLastMonth = results[0].hospitalsLastMonth[0] ? results[0].hospitalsLastMonth[0].count : 0;
+
+    const result = {
+      userCount,
+      hospitalCount,
+      usersLastWeek,
+      hospitalsLastWeek,
+      usersLastMonth,
+      hospitalsLastMonth,
+    }
+
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+}

@@ -223,7 +223,9 @@ export default function PostCard({ post }) {
           }
           <button onClick={()=>{
             navigator.clipboard.writeText('https://bloodconnectmain.vercel.app' + `/post/${post?._id}`)
-            toast.success("Link Copied")
+            toast.success("Link Copied",{
+              position: 'bottom-right'
+            })
           }} title="Share Post">
             <PiShareFatThin className="text-blue-500 text-2xl hover:text-blue-400 !stroke-[6px]" />
           </button>

@@ -13,6 +13,7 @@ import adminRoutes from './routes/admin.js'
 import hospitalRoutes from './routes/hospital.js'
 import postRoutes from './routes/post.js'
 import findRoutes from './routes/find.js'
+import requestRoutes from './routes/request.js'
 
 import auth from "./middlewares/auth.js";
 import hospital_auth from "./middlewares/hospital.js";
@@ -72,6 +73,7 @@ app.use('/api/v1/admin', admin_auth, adminRoutes)
 app.use('/api/v1/hospital', hospital_auth, hospitalRoutes)
 app.use('/api/v1/posts', auth, postRoutes)
 app.use('/api/v1/find', auth, findRoutes)
+app.use('/api/v1/request', auth, requestRoutes)
 
 // Test Route
 app.get("/", (req, res) => {
