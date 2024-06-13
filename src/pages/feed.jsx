@@ -10,6 +10,10 @@ import { useEffect, useState } from "react";
 import Modal from "../components/common/Modal";
 import { IoOptionsOutline } from "react-icons/io5";
 import { RiPinDistanceLine } from "react-icons/ri";
+import { isCompatible } from "../data/compatibility";
+import { useUser } from "../store/useUser";
+import toast from "react-hot-toast";
+import { useRequestMutation } from "../services/mutations/request";
 
 const fetchPosts = async (page = 1, limit = 12, maxDistanceInMeters, type) => {
   const params = {
@@ -41,6 +45,9 @@ export default function Feed() {
     distance ? Number(distance) / 1000 : 0
   );
   const [filterType, setFilterType] = useState(type ? type : "all");
+  const [interestConfirmModal, setInterestConfirmModal] = useState(false);
+  const [interestPostId, setInterestPostId] = useState(null);
+  const {user} = useUser()
 
   const { data, isLoading, isError, error, isFetching, refetch } = useQuery(
     ["posts", page, limit, distance, type],
@@ -51,6 +58,15 @@ export default function Feed() {
       refetchOnWindowFocus: false,
     }
   );
+
+  const requestMutation = useRequestMutation({
+    payload: {
+      post: interestPostId
+    },
+    onSuccess: () => {
+      window.location.reload()
+    }
+  })
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -81,6 +97,23 @@ export default function Feed() {
     setSearchParams(searchParams);
     setFilterModalOpen(false);
   };
+
+  const handlePostInterest = (post) => {
+    const donorBloodGroup = `${user?.additionalFields?.bloodType}${user?.additionalFields?.rhFactor === "Positive" ? "+" : "-"}`
+    const recipientBloodGroup = `${post?.user?.additionalFields?.bloodType}${post?.user?.additionalFields?.rhFactor === "Positive" ? "+" : "-"}`
+    console.log(donorBloodGroup, post)
+    const compatible = isCompatible(donorBloodGroup, recipientBloodGroup)
+
+    if(!compatible) {
+      toast.error("Incompatible Blood Groups", {
+        position: 'bottom-right'
+      })
+      return
+    }
+
+    setInterestPostId(post._id);
+    setInterestConfirmModal(true);
+  }
 
   return (
     <>
@@ -126,7 +159,7 @@ export default function Feed() {
           <>
             <div className="grid grid-cols-1 max-w-[400px] mx-auto sm:max-w-[unset] sm:mx-0 md:grid-cols-2 lg:grid-cols-3 gap-4 my-6">
               {data?.data?.posts?.map((post) => (
-                <PostCard post={post} key={post?._id} />
+                <PostCard post={post} handlePostInterest={handlePostInterest} key={post?._id} />
               ))}
             </div>
           </>
@@ -233,6 +266,21 @@ export default function Feed() {
               </div>
             </div>
           </div>
+        </div>
+      </Modal>
+      <Modal
+        open={interestConfirmModal}
+        setOpen={setInterestConfirmModal}
+        title={"Confirm Interest"}
+        btnText={requestMutation.isLoading ? "Loading..." : "Confirm"}
+        onClose={() => setInterestPostId(null)}
+        submitHandler={requestMutation.mutate}
+        isDisabled={requestMutation.isLoading}
+      >
+        <div className="p-4 text-sm">
+          <p>A Request will be made between You and Post Author.</p>
+          <p>The Request can be tracked from the <b>Dashboard Section</b>.</p>
+          <p>By Confirming, you <b>Allow us</b> to share your Information with the post Author.</p>
         </div>
       </Modal>
     </>

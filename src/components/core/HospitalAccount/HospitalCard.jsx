@@ -4,17 +4,26 @@ import { IoLocationOutline } from "react-icons/io5";
 import { useUser } from "../../../store/useUser";
 // import toast from "react-hot-toast";
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-export default function HospitalCard({user}) {
+export default function HospitalCard({user, handleRequest}) {
 
     const displayName = user?.additionalFields?.hospitalName
     const {user: currentUser} = useUser()
+    const location = useLocation()
+    const path = location.pathname.split('/')?.[1]
+    const currentLocation = path === 'find-hospitals' ? 'find' : path === 'hospital' ? 'hospitals' : ''
 
     const cardContent = useMemo(() => {
           return (
             <div className="text-gray-700 flex-1 flex flex-col justify-end">
               <div className="flex flex-col flex-1">
+              {currentLocation === 'hospitals' ? (
+                <p>
+                  <span className="font-semibold text-gray-800">Hospital Name:</span>{" "}
+                  {user?.additionalFields?.hospitalName}
+                </p>
+              ) : null}
               <p>
                 <span className="font-semibold text-gray-800">Registration:</span>{" "}
                 {user?.additionalFields?.registrationNumber}
@@ -30,8 +39,8 @@ export default function HospitalCard({user}) {
               </div>
               <div className="flex items-center justify-end mt-2">
                 {((user?._id !== currentUser?._id) && (currentUser?.accountType !== 'Hospital')) ? 
-                  <button className="bg-blue-500 text-sm hover:bg-opacity-90 text-white rounded-md px-4 py-1 flex items-center gap-x-2">
-                  Request
+                  <button disabled={currentUser?.requestedByMe && currentUser?.requestedByMe?.includes(user?._id)} onClick={()=>handleRequest(user)} className="bg-blue-500 text-sm hover:bg-opacity-90 text-white rounded-md px-4 py-1 flex items-center gap-x-2 disabled:bg-opacity-40">
+                  {currentUser?.requestedByMe && currentUser?.requestedByMe.includes(user?._id) ? 'Sent!' : 'Request'}
                 </button>
                 : null
                 }

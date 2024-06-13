@@ -5,7 +5,7 @@ import { useUser } from "../../../store/useUser";
 // import toast from "react-hot-toast";
 import { useMemo } from "react";
 
-export default function DonorCard({user}) {
+export default function DonorCard({user, handleRequest}) {
 
     const displayName = user?.name
     const {user: currentUser} = useUser()
@@ -32,8 +32,8 @@ export default function DonorCard({user}) {
               </p>
               <div className="flex items-center justify-end mt-2">
                 {((user?._id !== currentUser?._id) && (currentUser?.accountType !== 'Hospital')) ? 
-                  <button className="bg-blue-500 text-sm hover:bg-opacity-90 text-white rounded-md px-4 py-1 flex items-center gap-x-2">
-                  Request
+                  <button disabled={currentUser?.requestedByMe && currentUser?.requestedByMe?.includes(user?._id)} onClick={()=>handleRequest(user)} className="bg-blue-500 text-sm hover:bg-opacity-90 text-white disabled:bg-opacity-40 rounded-md px-4 py-1 flex items-center gap-x-2">
+                  {(currentUser?.requestedByMe && currentUser?.requestedByMe?.includes(user?._id)) ? 'Sent!' : 'Request'}
                 </button>
                 : null
                 }

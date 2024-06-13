@@ -9,7 +9,7 @@ import { useUser } from "../../../store/useUser";
 import { PiShareFatThin } from "react-icons/pi";
 import toast from "react-hot-toast";
 
-export default function PostCard({ post }) {
+export default function PostCard({ post, handlePostInterest }) {
   const postUserType = post?.user?.accountType;
   const postType = post?.type;
   const displayName =
@@ -73,8 +73,8 @@ export default function PostCard({ post }) {
               />
             </div>
             {((post?.user?._id !== user?._id) && (user?.accountType !== 'Hospital')) ? 
-              <button className="bg-blue-500 text-sm hover:bg-opacity-90 text-white rounded-md px-4 py-1 flex items-center gap-x-2">
-              Interested
+              <button disabled={post?.users?.includes(user?._id)} onClick={()=>handlePostInterest(post)} className="bg-blue-500 text-sm hover:bg-opacity-90 text-white disabled:bg-opacity-40 rounded-md px-4 py-1 flex items-center gap-x-2">
+              {post?.users?.includes(user?._id) ? 'Sent!' : 'Interested'}
             </button>
             : null
             }

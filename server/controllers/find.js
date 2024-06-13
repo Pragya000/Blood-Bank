@@ -4,6 +4,7 @@ import _ from "lodash";
 import { decryptData } from "../utils/decodeEncode.js";
 import { calculateAge } from "../utils/calculateAge.js";
 const MONGO_FIELD_KEY = process.env.MONGO_FIELD_ENCRYPTION_SECRET;
+import geolib from 'geolib';
 
 // @desc    Function to get pipeline for aggregation
 const getPipeline = (
@@ -251,3 +252,63 @@ export const findHospitals = async (req, res) => {
     });
   }
 };
+
+// @desc    Find hospital details
+// @route   POST /api/find/hospitals/:hospitalId
+// @access  Private
+export const findHospitalDetails = async (req, res) => {
+  try {
+    const { hospitalId } = req.params;
+    const user = req.user;
+
+    const hospital = await User.findOne({
+      _id: hospitalId,
+      accountType: "Hospital",
+      approvalStatus: "Approved"
+    }).select(
+      "additionalFields accountType profilePic approvalStatus reviews _id createdAt updatedAt"
+    ).lean();
+
+    if (!hospital) {
+      return res.status(404).json({
+        success: false,
+        message: "Hospital not found",
+      });
+    }
+
+    const hospitalCopy = _.cloneDeep(hospital);
+    hospitalCopy.additionalFields = {
+      hospitalName: hospital.additionalFields.hospitalName,
+      hospitalAddress: hospital.additionalFields.hospitalAddress,
+      registrationNumber: hospital.additionalFields.registrationNumber,
+      city: hospital.additionalFields.city,
+      hospitalImages: hospital.additionalFields.hospitalImages,
+      registrationCertificate: hospital.additionalFields.registrationCertificate,
+    }
+
+    const distance = geolib.getDistance(
+      {
+        latitude: user.additionalFields.location.coordinates[1],
+        longitude: user.additionalFields.location.coordinates[0],
+      },
+      {
+        latitude: hospital.additionalFields.location.coordinates[1],
+        longitude: hospital.additionalFields.location.coordinates[0],
+      },
+      0.01
+    )
+
+    hospitalCopy.distance = distance;
+
+    res.status(200).json({
+      success: true,
+      hospital: hospitalCopy,
+    });
+  } catch (error) {
+    console.log("Error in findHospitalDetails", error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+}

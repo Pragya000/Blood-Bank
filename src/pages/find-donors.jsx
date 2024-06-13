@@ -8,6 +8,10 @@ import { useEffect, useState } from "react";
 import { CiFilter } from "react-icons/ci";
 import { RiPinDistanceLine } from "react-icons/ri";
 import DonorCard from "../components/core/UserAccount/DonorCard";
+import { useUser } from "../store/useUser";
+import { isCompatible } from "../data/compatibility";
+import toast from "react-hot-toast";
+import { useRequestMutation } from "../services/mutations/request";
 
 const fetchDonors = async (page = 1, limit = 12, maxDistanceInMeters) => {
   const params = {
@@ -33,6 +37,10 @@ export default function FindDonors() {
   const limit = 12;
   const [filterDistance, setFilterDistance] = useState(
     distance ? Number(distance) / 1000 : 0)
+  const [requestModalOpen, setRequestModalOpen] = useState(false);
+  const [requestModalData, setRequestModalData] = useState(null)
+  const [additionalInfo, setAdditionalInfo] = useState("")
+  const {user} = useUser()
 
   const { data, isLoading, isError, error, isFetching } = useQuery(
     ["donors", page, limit, distance],
@@ -43,6 +51,16 @@ export default function FindDonors() {
       refetchOnWindowFocus: false,
     }
   )
+
+  const requestMutation = useRequestMutation({
+    payload: {
+      requestee: requestModalData?._id,
+      additionalInfo: additionalInfo,
+    },
+    onSuccess: () => {
+      location.replace('/profile/requests')
+    }
+  })
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -65,6 +83,22 @@ export default function FindDonors() {
     setSearchParams(searchParams);
     setFilterModalOpen(false);
   };
+
+  const handleRequest = (requestee_user) => {
+    const donorBloodGroup = `${requestee_user?.additionalFields?.bloodType}${requestee_user?.additionalFields?.rhFactor === "Positive" ? "+" : "-"}`
+    const recipientBloodGroup = `${user?.additionalFields?.bloodType}${user?.additionalFields?.rhFactor === "Positive" ? "+" : "-"}`
+    const compatible = isCompatible(donorBloodGroup, recipientBloodGroup)
+
+    if(!compatible) {
+      toast.error("Incompatible Blood Groups", {
+        position: 'bottom-right'
+      })
+      return
+    }
+
+    setRequestModalData(requestee_user)
+    setRequestModalOpen(true)
+  }
 
   return (
     <>
@@ -98,7 +132,7 @@ export default function FindDonors() {
             <>
               <div className="grid grid-cols-1 max-w-[400px] mx-auto sm:max-w-[unset] sm:mx-0 md:grid-cols-2 lg:grid-cols-3 gap-4 my-6">
                 {data?.data?.donors?.map((user) => (
-                  <DonorCard user={user} key={user?._id} />
+                  <DonorCard user={user} handleRequest={handleRequest} key={user?._id} />
                 ))}
               </div>
             </>
@@ -168,6 +202,31 @@ export default function FindDonors() {
               <p>{filterDistance} Km</p>
             </div>
           </div>
+        </div>
+      </Modal>
+      <Modal
+        open={requestModalOpen}
+        setOpen={setRequestModalOpen}
+        title={"Confirm Request"}
+        btnText={requestMutation.isLoading ? "Loading..." : "Confirm"}
+        onClose={() => {
+          setRequestModalData(null)
+          setAdditionalInfo("")
+        }}
+        submitHandler={requestMutation.mutate}
+        isDisabled={requestMutation.isLoading}
+      >
+        <div className="p-4 text-sm">
+          <p>A Request will be made between You and Post Author.</p>
+          <p>The Request can be tracked from the <b>Dashboard Section</b>.</p>
+          <p>By Confirming, you <b>Allow us</b> to share your Information with the post Author.</p>
+          <p className="mt-2">Additional Information:</p>
+          <textarea
+            className="w-full h-24 p-2 border border-gray-300 rounded-md"
+            value={additionalInfo}
+            placeholder="Add any additional information here"
+            onChange={(e) => setAdditionalInfo(e.target.value)}
+          ></textarea>
         </div>
       </Modal>
     </>

@@ -37,7 +37,7 @@ export default function Modal({
         if (preventOutsideClick) return;
         handleClose()
       }}
-      className={`absolute !inset-0 z-[10001] bg-black bg-opacity-30 backdrop-blur-sm grid place-content-center ${
+      className={`fixed w-screen h-screen !inset-0 z-[10001] bg-black bg-opacity-30 backdrop-blur-sm grid place-content-center ${
         !preventOutsideClick ? "cursor-pointer" : "cursor-auto"
       } `}
     >

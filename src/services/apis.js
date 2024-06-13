@@ -29,3 +29,6 @@ export const GET_POST_DETAILS = `${BASE_URL}/posts/get-post-details`;
 // Find APIs
 export const FIND_DONORS = `${BASE_URL}/find/donors`;
 export const FIND_HOSPITALS = `${BASE_URL}/find/hospitals`;
+
+// Request APIs
+export const CREATE_REQUEST = `${BASE_URL}/request/create`;
