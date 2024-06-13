@@ -32,7 +32,8 @@ const getPipeline = (
       $match: {
         _id: {
           $ne: userId,
-        }
+        },
+        approvalStatus: "Approved"
       }
     })
     queryPipeline.push({
@@ -46,7 +47,8 @@ const getPipeline = (
       $match: {
         _id: {
           $ne: userId,
-        }
+          },
+        approvalStatus: "Approved"
       }
     })
     queryPipeline.push({
