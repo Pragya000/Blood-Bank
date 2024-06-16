@@ -30,6 +30,7 @@
     "nanoid": "^4.0.2",
     "nodemailer": "^6.9.3",
     "nodemon": "^2.0.22",
-    "otp-generator": "^4.0.1"
+    "otp-generator": "^4.0.1",
+    "short-uuid": "^5.2.0"
   }
 }

@@ -46,11 +46,8 @@ const UserSchema = new mongoose.Schema(
       ref: "Request",
     }],
     certificates: [{
-      link: String,
-      request: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Request",
-      }
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Certificate",
     }],
     reviews: [{
       type: mongoose.Schema.Types.ObjectId,

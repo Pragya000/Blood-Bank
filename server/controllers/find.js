@@ -265,8 +265,16 @@ export const findHospitalDetails = async (req, res) => {
       _id: hospitalId,
       accountType: "Hospital",
       approvalStatus: "Approved"
-    }).select(
-      "additionalFields accountType profilePic approvalStatus reviews _id createdAt updatedAt"
+    }).populate({
+      path: 'reviews',
+      populate: {
+        path: 'reviewer',
+        select: 'name profilePic'
+      },
+      select: 'ratingPoints reviewText reviewer'
+    })
+    .select(
+      "additionalFields accountType reviews profilePic approvalStatus reviews _id createdAt updatedAt"
     ).lean();
 
     if (!hospital) {

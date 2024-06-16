@@ -42,7 +42,7 @@ export default function Post() {
     },
     onSuccess: () => {
       toast.success("Request Sent Successfully")
-      window.location.reload();
+      location.replace('/profile/requests')
     }
   })
 

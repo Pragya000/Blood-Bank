@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 import jwt from "jsonwebtoken";
 import User from "../model/User.js";
+import Certificate from "../model/Certificate.js";
 import mailSender from "../utils/mailSender.js";
 import otpTemplate from "../utils/mailTemplates/otp.js";
 import { createOtp, verifyOtp } from "../utils/otp.js";
@@ -272,3 +273,36 @@ export const createAdmin = async (req, res) => {
     });
   }
 }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// @desc   Verify Certificate
+// route   POST /api/auth/verify/:cert_id
+// access  Public
+export const verifyCertificate = async (req, res) => {
+  const { cert_id } = req.params;
+
+  if (!cert_id) {
+    return res.status(400).json({
+      success: false,
+      message: "Certificate ID is required",
+    });
+  }
+
+  // Check if certificate exists
+  const existingCertificate = await Certificate.findOne({ cert_id }).populate('user', 'name');
+  if (!existingCertificate) {
+    return res.status(400).json({
+      success: false,
+      message: "Certificate does not exist",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Certificate Verified Successfully",
+    certificate: existingCertificate,
+  });
+};

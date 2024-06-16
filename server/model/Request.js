@@ -20,6 +20,7 @@ const RequestSchema = new mongoose.Schema(
     status: {
         type: String,
         enum: ["Requested", "Rejected", "Accepted", 'Fulfilled'],
+        default: "Requested",
     },
     post: {
         type: mongoose.Schema.Types.ObjectId,

@@ -24,6 +24,7 @@ import FindDonors from "../pages/find-donors";
 import FindHospitals from "../pages/find-hospitals";
 import Hospital from "../pages/hospital";
 import Post from "../pages/post";
+import VerifyCertificate from "../pages/VerifyCertificate";
 
 export default function RouterProviderMain() {
 
@@ -154,6 +155,7 @@ export default function RouterProviderMain() {
     createRoutesFromElements(
       <>
       <Route path="/" element={<Home />} />,
+      <Route path='/verify/:certId' element={<VerifyCertificate />} />
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />,
       <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />,
       <Route path="/verify-otp" element={<PublicRoute><VerifyOtp /></PublicRoute>} />,

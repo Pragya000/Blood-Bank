@@ -5,6 +5,7 @@ import { sendUserResponse } from "../utils/user.js";
 import { uploadImageToCloudinary } from "../utils/cloudinary.js";
 import { getRandomCoordinates } from "../utils/distance.js";
 const cityData = require('../data/indian_cities.json');
+import Review from "../model/Review.js";
 
 // @desc   Create Hospital Details
 // route   POST /api/profile/create-user-details
@@ -29,13 +30,13 @@ export const createHospitalDetails = async (req, res) => {
         const city_lat = city?.lat;
         const city_lng = city?.lng;
         const radius = Math.floor(Math.random() * 40) + 5; // Radius in KM
-        
+
         const randomCoordinates = getRandomCoordinates({
             latitude: city_lat,
             longitude: city_lng
         }, radius);
 
-        if(!randomCoordinates || !randomCoordinates?.latitude || !randomCoordinates?.longitude) {
+        if (!randomCoordinates || !randomCoordinates?.latitude || !randomCoordinates?.longitude) {
             return res.status(500).json({ success: false, error: "Internal Server Error" });
         }
 
@@ -43,8 +44,8 @@ export const createHospitalDetails = async (req, res) => {
         const registrationCertificateResult = await uploadImageToCloudinary(registrationCertificateFile, `hospital/${user._id}`)
 
         const hospitalImages = [];
-        for(let i=0;i<3;i++) {
-            if(req.files?.[`hospitalImages[${i}]`]) {
+        for (let i = 0; i < 3; i++) {
+            if (req.files?.[`hospitalImages[${i}]`]) {
                 const hospitalImageFile = req.files[`hospitalImages[${i}]`];
                 const hospitalImageResult = await uploadImageToCloudinary(hospitalImageFile, `hospital/${user._id}`);
                 hospitalImages.push(hospitalImageResult.secure_url);
@@ -78,6 +79,36 @@ export const createHospitalDetails = async (req, res) => {
             data: {
                 updatedUser: response,
             },
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, error: "Something went wrong" });
+    }
+}
+
+// @desc   Get Hospital Reviews
+// route   POST /api/profile/get-hospital-reviews
+// access  Private
+export const getHospitalReviews = async (req, res) => {
+    try {
+
+        const user = req.user;
+
+        let reviews = user.reviews;
+
+        if (!reviews || reviews.length === 0) {
+            return res.status(200).json({
+                success: true,
+                reviews: []
+            });
+        }
+
+        reviews = await Review.find({ _id: { $in: reviews } }).populate('reviewer', 'name profilePic');
+
+        return res.status(200).json({
+            success: true,
+            reviews
         });
 
     } catch (error) {

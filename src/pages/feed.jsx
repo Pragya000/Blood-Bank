@@ -64,7 +64,10 @@ export default function Feed() {
       post: interestPostId
     },
     onSuccess: () => {
-      window.location.reload()
+      toast.success("Request Sent Successfully", {
+        position: 'bottom-right'
+      })
+      location.replace('/profile/requests')
     }
   })
 

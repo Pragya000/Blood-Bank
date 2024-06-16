@@ -5,6 +5,7 @@ const require = createRequire(import.meta.url);
 import { encryptData } from "../utils/decodeEncode.js";
 import { sendUserResponse } from "../utils/user.js";
 import { getRandomCoordinates } from "../utils/distance.js";
+import Certificate from "../model/Certificate.js";
 const cityData = require('../data/indian_cities.json');
 const MONGO_FIELD_KEY = process.env.MONGO_FIELD_ENCRYPTION_SECRET;
 
@@ -123,3 +124,32 @@ export const createUserDetails = async (req, res) => {
     return res.status(500).json({ success: false, error: "Something went wrong" });
   }
 };
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// @desc  List Certificates
+// route GET /api/profile/list-certificates
+// access Private
+export const listCertificates = async (req, res) => {
+  try {
+    const user = req.user;
+
+    if(user?.accountType !== 'User' || user?.approvalStatus !== 'Approved') {
+      return res.status(400).json({ success: false, error: "Invalid Account" });
+    }
+
+    const allUserCertificates = await Certificate.find({ user: user._id }).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      message: "User Certificates Fetched Successfully",
+        certificates: allUserCertificates,
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, error: "Something went wrong" });
+  }
+}
