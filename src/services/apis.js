@@ -37,3 +37,9 @@ export const FIND_HOSPITALS = `${BASE_URL}/find/hospitals`;
 export const CREATE_REQUEST = `${BASE_URL}/request/create`;
 export const LIST_REQUESTS = `${BASE_URL}/request/list`;
 export const UPDATE_REQUEST_STATUS = `${BASE_URL}/request/update`;
+
+// Registration APIs
+export const CREATE_REGISTRATION = `${BASE_URL}/register/create`;
+export const LIST_USER_REGISTRATIONS = `${BASE_URL}/register/list-users`;
+export const LIST_HOSPITAL_REGISTRATIONS = `${BASE_URL}/register/list-hospitals`;
+export const UPDATE_REGISTRATION_STATUS = `${BASE_URL}/register/update`;

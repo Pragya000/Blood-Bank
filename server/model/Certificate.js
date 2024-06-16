@@ -11,6 +11,10 @@ const CertificateSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Request",
     },
+    registration: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Registration",
+    },
     cert_id: {
         type: String,
         default: short.generate(),

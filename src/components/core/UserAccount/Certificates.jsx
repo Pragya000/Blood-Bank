@@ -3,6 +3,7 @@ import { apiConnector } from "../../../services/apiConnector";
 import { LIST_CERTIFICATES } from "../../../services/apis";
 import RenderCertificate from "../Certificate/RenderCertificate";
 import { useUser } from "../../../store/useUser";
+import React from "react";
 
 const fetchCertificates = async () => {
     const data = await apiConnector('GET', LIST_CERTIFICATES)
@@ -31,13 +32,17 @@ export default function Certificates() {
         <>
             <div className="pl-4 mt-4 pb-20 overflow-x-hidden">
             <h4 className="text-xl font-semibold my-4 md:ml-4">Your Certificates</h4>
-            {data?.data?.certificates.map((certificate) => (
+            <div className="space-y-3">
+            {data?.data?.certificates.map((certificate, index) => (
+              <React.Fragment key={certificate._id}>
+                <p className="font-bold text-xl">{index + 1}.</p>
                 <RenderCertificate
-                key={certificate._id}
                 certificate={certificate}
                 userName={user?.name}
                  />
+              </React.Fragment>
             ))}
+            </div>
             </div>
         </>
     )

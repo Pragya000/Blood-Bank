@@ -15,10 +15,10 @@ const RegistrationSchema = new mongoose.Schema(
     },
     hospital: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Hospital",
+        ref: "User",
         validate: {
             validator: async function(v) {
-                const hospital = await mongoose.model("Hospital").findById(v);
+                const hospital = await mongoose.model("User").findById(v);
                 return hospital.accountType === "Hospital";
             },
             message: "Hospital must be a Hospital"

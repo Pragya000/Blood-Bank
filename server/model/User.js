@@ -45,6 +45,10 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Request",
     }],
+    campsParticipatedIn: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+    }],
     certificates: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "Certificate",

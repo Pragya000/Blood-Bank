@@ -8,6 +8,9 @@ import { IoEyeOutline, IoLocationOutline } from "react-icons/io5";
 import { useUser } from "../../../store/useUser";
 import { PiShareFatThin } from "react-icons/pi";
 import toast from "react-hot-toast";
+import { useMutation } from "@tanstack/react-query";
+import { apiConnector } from "../../../services/apiConnector";
+import { CREATE_REGISTRATION } from "../../../services/apis";
 
 export default function PostCard({ post, handlePostInterest }) {
   const postUserType = post?.user?.accountType;
@@ -20,6 +23,23 @@ export default function PostCard({ post, handlePostInterest }) {
   const location = useLocation()
   const path = location.pathname.split('/')?.[1]
   const currentLocation = path === 'feed' ? 'feed' : path === 'post' ? 'post' : ''
+
+  const mutation = useMutation({
+    mutationFn: () => {
+      return apiConnector('POST', CREATE_REGISTRATION + `/${post?._id}`);
+    },
+    onSuccess: async (data) => {
+      if (data?.data?.success) {
+        toast.success('Registered Successfully');
+        // fake wait for 1.5 sec
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        window.location.replace('/profile/registrations')
+      }
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || 'Something went wrong!');
+    },
+  });
 
   const postContent = useMemo(() => {
     if (postType === "Request") {
@@ -73,7 +93,7 @@ export default function PostCard({ post, handlePostInterest }) {
               />
             </div>
             {((post?.user?._id !== user?._id) && (user?.accountType !== 'Hospital')) ? 
-              <button disabled={post?.users?.includes(user?._id)} onClick={()=>handlePostInterest(post)} className="bg-blue-500 text-sm hover:bg-opacity-90 text-white disabled:bg-opacity-40 rounded-md px-4 py-1 flex items-center gap-x-2">
+              <button disabled={post?.users?.includes(user?._id) || post?.requestStatus === 'Approved'} onClick={()=>handlePostInterest(post)} className="bg-blue-500 text-sm hover:bg-opacity-90 text-white disabled:bg-opacity-40 rounded-md px-4 py-1 flex items-center gap-x-2">
               {post?.users?.includes(user?._id) ? 'Sent!' : 'Interested'}
             </button>
             : null
@@ -150,9 +170,9 @@ export default function PostCard({ post, handlePostInterest }) {
             </div>
             {
               ((post?.user?._id !== user?._id) && (user?.accountType !== 'Hospital')) ?
-              <button disabled={!(new Date(post.timing) > new Date())} className="bg-blue-500 disabled:bg-opacity-40 text-sm hover:bg-opacity-90 text-white rounded-md px-4 py-1 flex items-center gap-x-2">
+              <button onClick={mutation.mutate} disabled={!(new Date(post.timing) > new Date()) || post?.users?.includes(user?._id) || mutation.isLoading} className="bg-blue-500 disabled:bg-opacity-40 text-sm hover:bg-opacity-90 text-white rounded-md px-4 py-1 flex items-center gap-x-2">
               {
-                new Date(post.timing) > new Date() ? "Register" : "Expired"
+                new Date(post.timing) > new Date() ? `${post?.users?.includes(user?._id) ? 'Registered!' : 'Register'}` : "Expired"
               }
             </button> : null
             }

@@ -81,7 +81,7 @@ export default function Hospital() {
                   className="max-w-[250px] max-h-[250px] aspect-square object-cover"
                 />
               ) : null}
-              {data?.data?.hospital?.additionalFields?.hospitalImages?.map(
+              {data?.data?.hospital?.additionalFields?.hospitalImages?.length > 0 && data?.data?.hospital?.additionalFields?.hospitalImages?.map(
                 (img, idx) => (
                   <img
                     key={idx}
