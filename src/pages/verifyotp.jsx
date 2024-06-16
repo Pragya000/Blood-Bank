@@ -25,7 +25,6 @@ export default function VerifyOtp() {
   // mutation to signup user OR verify otp
   const mutation = useMutation({
     mutationFn: (payload) => {
-      console.log(otpType)
       const API_URL = otpType === "signup" ? SIGNUP : FORGOT_PASSWORD;
       return apiConnector("POST", API_URL, payload);
     },

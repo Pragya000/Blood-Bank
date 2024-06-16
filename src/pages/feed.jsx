@@ -104,7 +104,6 @@ export default function Feed() {
   const handlePostInterest = (post) => {
     const donorBloodGroup = `${user?.additionalFields?.bloodType}${user?.additionalFields?.rhFactor === "Positive" ? "+" : "-"}`
     const recipientBloodGroup = `${post?.user?.additionalFields?.bloodType}${post?.user?.additionalFields?.rhFactor === "Positive" ? "+" : "-"}`
-    console.log(donorBloodGroup, post)
     const compatible = isCompatible(donorBloodGroup, recipientBloodGroup)
 
     if(!compatible) {

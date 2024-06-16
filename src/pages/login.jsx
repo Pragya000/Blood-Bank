@@ -33,7 +33,6 @@ export default function Login() {
     },
     onSuccess: (data) => {
       toast.success("Login successful!");
-      console.log(data?.data, '<---- here')
       setIsAuth(true);
       setAccountType(data?.data?.accountType);
       setApprovalStatus(data?.data?.approvalStatus);

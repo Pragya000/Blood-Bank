@@ -21,7 +21,6 @@ export default function RootProvider() {
         (async()=>{
           try {
             const data = await apiConnector('GET', GET_USER_DETAILS)
-            console.log(data)
             if(!data?.data?.data?.user) {
               setIsAuth(false)
               setAccountType(null)
@@ -32,7 +31,6 @@ export default function RootProvider() {
             setAccountType(data?.data?.data?.user?.accountType)
             setApprovalStatus(data?.data?.data?.user?.approvalStatus)
           } catch(error) {
-            console.log(error)
             setIsAuth(false)
             setAccountType(null)
             setApprovalStatus(null)
