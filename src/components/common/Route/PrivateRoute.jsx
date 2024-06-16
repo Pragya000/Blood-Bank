@@ -38,7 +38,6 @@ export default function PrivateRoute({ children }) {
         { to: "/profile/registrations", title: "Registrations" },
         { to: "/profile/certificates", title: "Certificates", accountType: 'User' },
         { to: "/profile/reviews", title: "Reviews", accountType: 'Hospital' },
-        { to: "/profile/settings", title: "Settings" },
       ]
     },
   ];

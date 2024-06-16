@@ -1,41 +1,49 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
-import { apiConnector } from "../../../services/apiConnector"
-import { LIST_REQUESTS, UPDATE_REQUEST_STATUS } from "../../../services/apis"
-import { useUser } from "../../../store/useUser"
-import RequestCard from "../Request/RequestCard"
-import toast from "react-hot-toast"
-import { useMemo, useState } from "react"
-import Modal from "../../common/Modal"
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiConnector } from "../../../services/apiConnector";
+import { LIST_REQUESTS, UPDATE_REQUEST_STATUS } from "../../../services/apis";
+import { useUser } from "../../../store/useUser";
+import RequestCard from "../Request/RequestCard";
+import toast from "react-hot-toast";
+import { useMemo, useState } from "react";
+import Modal from "../../common/Modal";
 
 const fetchRequests = async () => {
-  const data = await apiConnector('GET', LIST_REQUESTS)
-  return data
-}
+  const data = await apiConnector("GET", LIST_REQUESTS);
+  return data;
+};
 
 export default function Requests() {
-
-  const [fulfillModalOpen, setFulfillModalOpen] = useState(false)
-  const [fullFillData, setFullFillData] = useState(null)
-  const [userDetailsModalOpen, setUserDetailsModalOpen] = useState(false)
-  const [userDetailsData, setUserDetailsData] = useState(null)
-  const { user } = useUser()
-  const { data, isLoading, isError, error, refetch } = useQuery(["requests"], fetchRequests, {
-    keepPreviousData: true,
-    refetchIntervalInBackground: false,
-    refetchOnWindowFocus: false,
-  });
+  const [fulfillModalOpen, setFulfillModalOpen] = useState(false);
+  const [fullFillData, setFullFillData] = useState(null);
+  const [userDetailsModalOpen, setUserDetailsModalOpen] = useState(false);
+  const [userDetailsData, setUserDetailsData] = useState(null);
+  const { user } = useUser();
+  const { data, isLoading, isError, error, refetch } = useQuery(
+    ["requests"],
+    fetchRequests,
+    {
+      keepPreviousData: true,
+      refetchIntervalInBackground: false,
+      refetchOnWindowFocus: false,
+    }
+  );
   const [rating, setRating] = useState(5);
   const [ratingText, setRatingText] = useState("");
 
-  const displayName = userDetailsData?.accountType === 'Hospital' ? userDetailsData?.additionalFields?.hospitalName : userDetailsData?.name
+  const displayName =
+    userDetailsData?.accountType === "Hospital"
+      ? userDetailsData?.additionalFields?.hospitalName
+      : userDetailsData?.name;
 
   const cardContent = useMemo(() => {
     return (
       <div className="text-gray-700">
-        {userDetailsData?.accountType === 'Hospital' ? (
+        {userDetailsData?.accountType === "Hospital" ? (
           <>
             <p>
-              <span className="font-semibold text-gray-800">Hospital Name:</span>{" "}
+              <span className="font-semibold text-gray-800">
+                Hospital Name:
+              </span>{" "}
               {user?.additionalFields?.hospitalName}
             </p>
             <p>
@@ -56,7 +64,9 @@ export default function Requests() {
             <p>
               <span className="font-semibold text-gray-800">Blood Group:</span>{" "}
               {userDetailsData?.additionalFields?.bloodType}
-              {userDetailsData?.additionalFields?.rhFactor === "Positive" ? "+" : "-"}
+              {userDetailsData?.additionalFields?.rhFactor === "Positive"
+                ? "+"
+                : "-"}
             </p>
             <p>
               <span className="font-semibold text-gray-800">Age:</span>{" "}
@@ -78,18 +88,22 @@ export default function Requests() {
 
   const mutation = useMutation({
     mutationFn: (payload) => {
-      return apiConnector('POST', UPDATE_REQUEST_STATUS + `/${payload.id}`, payload.data);
+      return apiConnector(
+        "POST",
+        UPDATE_REQUEST_STATUS + `/${payload.id}`,
+        payload.data
+      );
     },
     onSuccess: (data) => {
       if (data?.data?.success) {
-        setFulfillModalOpen(false)
-        setFullFillData(null)
-        toast.success('Request updated successfully!');
+        setFulfillModalOpen(false);
+        setFullFillData(null);
+        toast.success("Request updated successfully!");
         refetch();
       }
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || 'Something went wrong!');
+      toast.error(error?.response?.data?.message || "Something went wrong!");
     },
   });
 
@@ -97,46 +111,54 @@ export default function Requests() {
     return <div>Loading...</div>;
   }
 
-  if (isError || !data?.data?.requests) {
+  if (isError) {
     return <div>Error: {error?.message || "Something Went Wrong!"}</div>;
   }
 
   const finalData = data.data.requests;
 
   const handleFulfill = (request) => {
-    if (request.requestType === 'Hospital') {
-      setFulfillModalOpen(true)
-      setFullFillData(request)
+    if (request.requestType === "Hospital") {
+      setFulfillModalOpen(true);
+      setFullFillData(request);
     } else {
-      mutation.mutate({ 
+      mutation.mutate({
         id: request._id,
         data: {
-          status: 'Fulfilled'
-        }
-      })
+          status: "Fulfilled",
+        },
+      });
     }
-  }
+  };
 
   const handleUserModalOpen = (data) => {
-    setUserDetailsData(data)
-    setUserDetailsModalOpen(true)
-  }
+    setUserDetailsData(data);
+    setUserDetailsModalOpen(true);
+  };
 
   return (
     <>
-      <h4 className="text-xl font-semibold my-4 md:ml-4">Manage your Requests</h4>
-      <div className="md:pl-4">
-        {finalData.map((request) => (
-          <RequestCard
-            key={request._id}
-            request={request}
-            currentUser={user}
-            changeMutation={mutation}
-            handleFulfill={handleFulfill}
-            handleUserModalOpen={handleUserModalOpen}
-          />
-        ))}
-      </div>
+      <h4 className="text-xl font-semibold my-4 md:ml-4">
+        Manage your Requests
+      </h4>
+      {finalData && finalData?.length > 0 ? (
+        <div className="md:pl-4">
+          {finalData.map((request) => (
+            <RequestCard
+              key={request._id}
+              request={request}
+              currentUser={user}
+              changeMutation={mutation}
+              handleFulfill={handleFulfill}
+              handleUserModalOpen={handleUserModalOpen}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="min-h-[10vh] py-10">
+          <p className="font-bold text-lg text-center">No Requests Found</p>
+        </div>
+      )}
       <Modal
         open={fulfillModalOpen}
         setOpen={setFulfillModalOpen}
@@ -146,22 +168,25 @@ export default function Requests() {
           mutation.mutate({
             id: fullFillData._id,
             data: {
-              status: 'Fulfilled',
+              status: "Fulfilled",
               reviewText: ratingText,
-              ratingPoints: rating
-            }
-          })
+              ratingPoints: rating,
+            },
+          });
         }}
         btnText="Fulfill"
         onClose={() => {
-          setFullFillData(null)
-          setRating(5)
-          setRatingText('')
+          setFullFillData(null);
+          setRating(5);
+          setRatingText("");
         }}
       >
         <div className="p-4">
           <div className="mb-4">
-            <label htmlFor="rating" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="rating"
+              className="block text-sm font-medium text-gray-700"
+            >
               Rating (1-5)
             </label>
             <select
@@ -178,7 +203,10 @@ export default function Requests() {
             </select>
           </div>
           <div className="mb-4">
-            <label htmlFor="ratingText" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="ratingText"
+              className="block text-sm font-medium text-gray-700"
+            >
               Review
             </label>
             <textarea
@@ -197,7 +225,7 @@ export default function Requests() {
         setOpen={setUserDetailsModalOpen}
         title="User Details"
         onClose={() => {
-          setUserDetailsData(null)
+          setUserDetailsData(null);
         }}
         hideFooter
       >
@@ -211,7 +239,9 @@ export default function Requests() {
               />
               <div>
                 <div className="flex items-center gap-x-1">
-                  <p className="font-semibold text-sm truncate max-w-[12rem]">{displayName}</p>
+                  <p className="font-semibold text-sm truncate max-w-[12rem]">
+                    {displayName}
+                  </p>
                 </div>
               </div>
             </div>
@@ -220,5 +250,5 @@ export default function Requests() {
         </div>
       </Modal>
     </>
-  )
+  );
 }

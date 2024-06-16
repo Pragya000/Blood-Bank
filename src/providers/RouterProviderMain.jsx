@@ -17,7 +17,6 @@ import Requests from "../components/core/UserAccount/Requests";
 import Registrations from "../components/core/UserAccount/Registrations";
 import Certificates from "../components/core/UserAccount/Certificates";
 import Reviews from "../components/core/UserAccount/Reviews";
-import Settings from "../components/core/UserAccount/Settings";
 import Feed from "../pages/feed";
 import Admin from "../pages/admin";
 import FindDonors from "../pages/find-donors";
@@ -59,8 +58,6 @@ export default function RouterProviderMain() {
         return <Certificates />
       case 'reviews':
         return <Reviews />
-      case 'settings':
-        return <Settings />
       default:
         return <Error />;
     }

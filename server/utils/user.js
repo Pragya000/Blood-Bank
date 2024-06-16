@@ -9,6 +9,7 @@ export const sendUserResponse = (user) => {
         if (user.accountType === "User") {
             user.additionalFields = {
                 dateOfBirth: decryptData(user?.additionalFields?.dateOfBirth, MONGO_FIELD_KEY),
+                gender: user?.additionalFields?.gender,
                 bloodType: decryptData(user?.additionalFields?.bloodType, MONGO_FIELD_KEY),
                 rhFactor: decryptData(user?.additionalFields?.rhFactor, MONGO_FIELD_KEY),
                 city: user?.additionalFields?.city,
